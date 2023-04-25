@@ -8,9 +8,6 @@ import java.util.Collection;
 public interface MultiBeanFactory<T> {
 
     String getBeanName(String name);
-
-
-
     Class<?> getObjectType();
 
     Collection<String> getNames();

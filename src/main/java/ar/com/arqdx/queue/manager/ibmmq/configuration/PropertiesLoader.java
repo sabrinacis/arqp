@@ -1,12 +1,9 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
+import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -21,7 +18,6 @@ public class PropertiesLoader {
     @Autowired
     private QueueManagerService queueManagerService;
 
-    //@Bean
     public BrokerLoader getBrokerLoader() throws IOException {
         return new BrokerLoader();
     }

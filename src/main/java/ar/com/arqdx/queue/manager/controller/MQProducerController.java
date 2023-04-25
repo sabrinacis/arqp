@@ -15,11 +15,11 @@ import java.io.IOException;
 @Slf4j
 public class MQProducerController {
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("broker0.queue0")
     private IQueue queue0;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("broker0.queue1")
     private IQueue queue1;
 
