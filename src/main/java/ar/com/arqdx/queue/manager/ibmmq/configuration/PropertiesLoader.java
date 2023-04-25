@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -20,54 +21,25 @@ public class PropertiesLoader {
     @Autowired
     private QueueManagerService queueManagerService;
 
-    @Bean
+    //@Bean
     public BrokerLoader getBrokerLoader() throws IOException {
         return new BrokerLoader();
     }
-
-    @Bean("broker0.queue0")
-    public Queue getQueue0() {
-        return new Queue("asd",queueManagerService);
-    }
-
-    @Bean("broker0.queue1")
-    public Queue getQueue1() {
-        return new Queue("csd",queueManagerService);
-    }
-
-
-
 
     @PostConstruct
     public void init() {
 
         try {
-        //  Map<String, String> queueMap = loadQueues();
+            BrokerLoader beanBrokerLoader = (BrokerLoader) applicationContext.getBean("BrokerLoader");
 
-            ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+            System.out.println("-->>>>>> bean: " + beanBrokerLoader.toString());
 
-            Map<String, String> queueMap =  getBrokerLoader().getQueues();
-
-
-            // iterate over properties and register new beans
-            for (Map.Entry<String, String> entry : queueMap.entrySet()) {
-                System.out.println("<>" + entry.getKey() + ":" + entry.getValue());
-
-                String beanName = entry.getKey() ;
-
-                System.out.println("BeanName: " + beanName);
-
-                IQueue bean = new Queue(entry.getValue(), queueManagerService); // nombre de queue
-
-                beanFactory.registerSingleton(beanName, bean);    // bean name = 'queue0', 'queue1', etc
-
+            for (Map.Entry<String, IQueue> entry : beanBrokerLoader.getQueues().entrySet()) {
+                entry.getValue().setQueueService(queueManagerService);
             }
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
 

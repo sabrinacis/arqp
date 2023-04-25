@@ -12,8 +12,7 @@ import java.util.Properties;
 @EnableJms
 @Slf4j
 public class QueueManagerService {
-    @Autowired
-    Properties properties;
+
 
     @Autowired
     private JmsTemplate jmsTemplate;

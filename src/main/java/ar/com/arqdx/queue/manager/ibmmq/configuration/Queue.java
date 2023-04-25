@@ -11,7 +11,9 @@ public class Queue implements IQueue {
 
     private String queueName;
 
-    public Queue() {}
+    public Queue() {
+    }
+
     public Queue(String qName, QueueManagerService qService) {
         this.queueName = qName;
         this.queueService = qService;
@@ -23,11 +25,28 @@ public class Queue implements IQueue {
         this.queueService.send(queueName, message);
     }
 
+    public QueueManagerService getQueueService() {
+        return queueService;
+    }
+
+    public void setQueueService(QueueManagerService queueService) {
+        this.queueService = queueService;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
     @Override
-    public void consume( ){
- log.info("Se envía mensaje");
+    public void consume() {
+        log.info("Se envía mensaje");
         this.queueService.consume(queueName);
-}
+    }
+
     @Override
     public String toString() {
         return "Queue{" +

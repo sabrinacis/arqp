@@ -6,4 +6,6 @@ public interface IQueue {
 
     void consume();
 
+    void setQueueService(QueueManagerService queueService);
+
 }
