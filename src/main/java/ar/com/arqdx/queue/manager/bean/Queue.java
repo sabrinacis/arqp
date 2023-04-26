@@ -1,5 +1,8 @@
-package ar.com.arqdx.queue.manager.ibmmq.configuration;
+package ar.com.arqdx.queue.manager.bean;
 
+import ar.com.arqdx.queue.manager.bean.IQueue;
+import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
+import ar.com.arqdx.queue.manager.service.IIBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,6 +12,8 @@ import org.springframework.stereotype.Component;
 public class Queue implements IQueue {
 
     private QueueManagerService queueService;
+
+    private IBMMQManagerService iBMMQManagerService;
 
     private String queueName;
 
@@ -20,11 +25,23 @@ public class Queue implements IQueue {
         this.queueService = qService;
     }
 
+    public Queue(IBMMQManagerService iBMMQManagerService, String queueName) {
+        this.iBMMQManagerService = iBMMQManagerService;
+        this.queueName = queueName;
+    }
+
     @Override
     public void sendMessage(String message) {
         log.info("Se envía mensaje");
         this.queueService.send(queueName, message);
     }
+
+    @Override
+    public void consume() {
+        log.info("Se envía mensaje");
+        this.queueService.consume(queueName);
+    }
+
 
     public QueueManagerService getQueueService() {
         return queueService;
@@ -42,11 +59,14 @@ public class Queue implements IQueue {
         this.queueName = queueName;
     }
 
-    @Override
-    public void consume() {
-        log.info("Se envía mensaje");
-        this.queueService.consume(queueName);
+    public IBMMQManagerService getiBMMQManagerService() {
+        return iBMMQManagerService;
     }
+
+    public void setiBMMQManagerService(IBMMQManagerService iBMMQManagerService) {
+        this.iBMMQManagerService = iBMMQManagerService;
+    }
+
 
     @Override
     public String toString() {

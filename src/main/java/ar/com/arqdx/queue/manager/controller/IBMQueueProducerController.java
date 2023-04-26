@@ -1,6 +1,6 @@
 package ar.com.arqdx.queue.manager.controller;
 
-import ar.com.arqdx.queue.manager.ibmmq.configuration.IQueue;
+import ar.com.arqdx.queue.manager.bean.IQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @RestController
 @Slf4j
-public class MQProducerController {
+public class IBMQueueProducerController {
 
     @Autowired
     @Qualifier("broker0.queue0")

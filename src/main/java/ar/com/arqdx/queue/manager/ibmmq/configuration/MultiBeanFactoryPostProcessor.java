@@ -1,6 +1,8 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 
+import ar.com.arqdx.queue.manager.bean.IQueue;
+import ar.com.arqdx.queue.manager.bean.Queue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -28,6 +30,7 @@ public class MultiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         try {
+
             HashMap<String, String> queues = (HashMap<String, String>) loadQueues();
 
             init(queues, beanFactory);
@@ -86,7 +89,7 @@ public class MultiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     }
 
     private static boolean isQueueName(String key) {
-        return key.contains("brokers") & key.contains("queue") & key.contains("name");
+        return key.contains("broker") & key.contains("queue") & key.contains("name");
     }
 
     private String getKey(String v1) {

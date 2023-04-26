@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.configuration;
+package ar.com.arqdx.queue.manager.conf;
 
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,36 +7,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 @ConfigurationProperties(prefix = "mq")
 @ConfigurationPropertiesScan
 public class Broker {
-
-    private List<String> queues;
-    // private List<String> topics;
-    private int port;
     private String host;
     private String channel;
     private String qmgr;
     private String user;
     private String password;
-    private String queueName;
-
-    public List<String> getQueues() {
-        return queues;
-    }
-
-    public void setQueues(List<String> queues) {
-        this.queues = queues;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
+    private int port;
+    private List<Queue> queue;
 
     public String getHost() {
         return host;
@@ -78,12 +58,32 @@ public class Broker {
         this.password = password;
     }
 
-    public String getQueueName() {
-        return queueName;
+    public int getPort() {
+        return port;
     }
 
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
+    public void setPort(int port) {
+        this.port = port;
     }
 
+    public List<Queue> getQueue() {
+        return queue;
+    }
+
+    public void setQueue(List<Queue> queues) {
+        this.queue = queues;
+    }
+
+    @Override
+    public String toString() {
+        return "Broker{" +
+                "host='" + host + '\'' +
+                ", channel='" + channel + '\'' +
+                ", qmgr='" + qmgr + '\'' +
+                ", user='" + user + '\'' +
+                ", password='" + password + '\'' +
+                ", port=" + port +
+                ", queue=" + queue +
+                '}';
+    }
 }
