@@ -94,7 +94,7 @@ public class IbmConfiguration {
 
                             // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
                             System.out.println("--> broker: " + broker + " queue name: " + broker.getQueue() + " --> BeanName: " + beanName);
-                            IQueue ibean = new Queue(beanName.toString(), null);
+                            IQueue ibean = new Queue(q1.getName(), null);
                             beanFactory.registerSingleton(beanName.toString(), ibean);
 
                             iBrokerLoader.getQueues().put(beanName.toString(),ibean);
