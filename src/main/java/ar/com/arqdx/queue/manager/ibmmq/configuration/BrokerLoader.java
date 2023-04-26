@@ -2,7 +2,6 @@ package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.bean.IQueue;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

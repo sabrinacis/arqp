@@ -1,8 +1,6 @@
 package ar.com.arqdx.queue.manager.bean;
 
-import ar.com.arqdx.queue.manager.bean.IQueue;
 import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
-import ar.com.arqdx.queue.manager.service.IIBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

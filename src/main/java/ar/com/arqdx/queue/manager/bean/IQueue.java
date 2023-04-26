@@ -1,7 +1,6 @@
 package ar.com.arqdx.queue.manager.bean;
 
 import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
-import ar.com.arqdx.queue.manager.service.IIBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 
 public interface IQueue {
