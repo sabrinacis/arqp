@@ -14,7 +14,7 @@ public class BrokerLoader {
         this.queues = queues;
     }
 
-    public BrokerLoader() throws IOException {
+    public BrokerLoader()   {
         this.queues = new HashMap<String, IQueue>();;
     }
 

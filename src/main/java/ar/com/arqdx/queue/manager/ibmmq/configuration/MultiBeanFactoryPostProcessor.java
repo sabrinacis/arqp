@@ -33,7 +33,7 @@ public class MultiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
             HashMap<String, String> queues = (HashMap<String, String>) loadQueues();
 
-            init(queues, beanFactory);
+        //    init(queues, beanFactory);
 
             System.out.println("-->>>> contains Bean broker0.queue1 :: " + beanFactory.containsBean("broker0.queue1"));
 
@@ -62,7 +62,8 @@ public class MultiBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
     }
 
 
-    private Map<String, String> loadQueues() throws IOException {
+
+        private Map<String, String> loadQueues() throws IOException {
         // se carga archivo de properties
         HashMap<String, String> queues = new HashMap<String, String>();
 
