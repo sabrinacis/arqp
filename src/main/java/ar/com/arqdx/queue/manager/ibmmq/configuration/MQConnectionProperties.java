@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.conf;
+package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;

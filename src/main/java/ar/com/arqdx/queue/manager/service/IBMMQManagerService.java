@@ -1,11 +1,10 @@
 package ar.com.arqdx.queue.manager.service;
 
-import ar.com.arqdx.queue.manager.conf.IBMMQFactoryList;
+import ar.com.arqdx.queue.manager.ibmmq.configuration.IBMMQFactoryList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.JmsException;
 import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.jms.JMSException;

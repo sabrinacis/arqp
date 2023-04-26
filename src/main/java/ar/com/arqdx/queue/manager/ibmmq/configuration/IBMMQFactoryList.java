@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.conf;
+package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
