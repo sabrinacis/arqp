@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.jms.JMSException;
 import java.io.IOException;
 
 @RestController
@@ -24,7 +25,7 @@ public class IBMQueueProducerController {
     private IQueue queue1;
 
     @GetMapping("send")
-    public ResponseEntity<String> send() throws IOException {
+    public ResponseEntity<String> send() throws IOException, JMSException {
         log.info("'VALUES' - Se va a enviar el mensaje ");
 
         log.info(queue0.toString());
@@ -35,7 +36,7 @@ public class IBMQueueProducerController {
     }
 
     @GetMapping("send/{value}")
-    public ResponseEntity<String> values(@PathVariable String value) throws IOException {
+    public ResponseEntity<String> values(@PathVariable String value) throws IOException, JMSException {
         log.info("'VALUES' - Se va a enviar el mensaje: {}", value);
 
         log.info(queue0.toString());
@@ -46,7 +47,7 @@ public class IBMQueueProducerController {
     }
 
     @GetMapping("send2/{value}")
-    public ResponseEntity<String> values2(@PathVariable String value) throws IOException {
+    public ResponseEntity<String> values2(@PathVariable String value) throws IOException, JMSException {
         log.info("'VALUES2' - Se va a enviar el mensaje: {}", value);
 
         log.info(queue1.toString());
@@ -57,7 +58,7 @@ public class IBMQueueProducerController {
     }
 
     @GetMapping("consume2")
-    public ResponseEntity<String> consume2() throws IOException {
+    public ResponseEntity<String> consume2() throws IOException, JMSException {
         log.info("'VALUES2' - consumiendo el mensaje " );
 
         log.info(queue1.toString());

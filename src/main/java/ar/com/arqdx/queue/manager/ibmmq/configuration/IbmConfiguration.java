@@ -4,6 +4,7 @@ import ar.com.arqdx.queue.manager.bean.Queue;
 import ar.com.arqdx.queue.manager.interfaces.IQueue;
 import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
+import com.ibm.mq.constants.CMQC;
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
 import org.slf4j.Logger;
@@ -20,10 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import javax.jms.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +51,7 @@ public class IbmConfiguration {
     @Autowired
     private IBMMQManagerService iBMMQManagerService;
 
+
     @Bean
     public static BeanFactoryPostProcessor beanFactoryPostProcessor(
             Environment environment) {
@@ -76,6 +75,10 @@ public class IbmConfiguration {
                         LOGGER.info("MQConnectionFactory broker: " + broker.toString());
                         // Genera Connection Factory
                         MQConnectionFactory factory = getMQConnectionFactory(broker);
+                        Connection connection = factory.createConnection();
+
+                        //AUTO_ACKNOWLEDGE: La sesión acusa recibo automáticamente de cada mensaje recibido por la aplicación.
+                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
                         iBMMQFactoryList.getFactoryList().add(factory);
 
@@ -83,11 +86,22 @@ public class IbmConfiguration {
                         for (ar.com.arqdx.queue.manager.ibmmq.configuration.Queue q1 : broker.getQueue()) {
                             // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
                             IQueue ibean = getQueue(broker, i, j);
+                            ibean.setSession(session);
+                            ibean.setConnection(connection);
+
+
+                            Destination producerDestination = session.createQueue(q1.getName());
+
+                            ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
+                            ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination)));
+
                             beanFactory.registerSingleton(ibean.getQueueName(), ibean);
+
                             iBrokerLoader.getQueues().put(ibean.getQueueName(), ibean);
                             j = j + 1;
                         }
                         i = i + 1;
+                        connection.start();
                     }
 
                 } catch (JMSException e) {
@@ -98,32 +112,24 @@ public class IbmConfiguration {
     }
 
 
+
     @PostConstruct
     public List<MQConnectionFactory> factoryList() throws JMSException {
 
 
-            BrokerLoader beanBrokerLoader = (BrokerLoader) applicationContext.getBean("BrokerLoader");
-            IBMMQFactoryList iBMMQFactoryList = (IBMMQFactoryList) applicationContext.getBean("iBMMQFactoryList");
+        BrokerLoader beanBrokerLoader = (BrokerLoader) applicationContext.getBean("BrokerLoader");
+        IBMMQFactoryList iBMMQFactoryList = (IBMMQFactoryList) applicationContext.getBean("iBMMQFactoryList");
 
-            System.out.println("-->>>>>> bean: " + beanBrokerLoader.toString());
+        System.out.println("-->>>>>> bean: " + beanBrokerLoader.toString());
 
-            for (Map.Entry<String, IQueue> entry : beanBrokerLoader.getQueues().entrySet()) {
-                IQueue iQueue1 = entry.getValue();
-                iQueue1.setIbmMQQueueService(queueManagerService);
-                iQueue1.setiBMMQManagerService(iBMMQManagerService);
-                iQueue1.setSession(getSession(iBMMQFactoryList.getFactoryList().get(0)));
+        for (Map.Entry<String, IQueue> entry : beanBrokerLoader.getQueues().entrySet()) {
+            IQueue iQueue1 = entry.getValue();
+            iQueue1.setQueueManagerService(queueManagerService);
+            iQueue1.setiBMMQManagerService(iBMMQManagerService);
+        }
 
-                Destination producerDestination = iQueue1.getSession().createQueue(iQueue1.getQueueName());
-
-                iQueue1.setMessageProducer(new MQMessageProducer(iQueue1.getSession().createProducer(producerDestination)));
-                iQueue1.setMessageConsumer(new MQMessageConsumer(iQueue1.getSession().createConsumer(producerDestination)));
-
-                iQueue1.getConnection().start();
-
-            }
-            return iBMMQFactoryList.getFactoryList();
+        return iBMMQFactoryList.getFactoryList();
     }
-
 
     @Bean
     public BrokerLoader getBrokerLoader() throws IOException {
@@ -165,6 +171,13 @@ public class IbmConfiguration {
         factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
         factory.setStringProperty(broker.getUser(), WMQConstants.USERID);
         factory.setStringProperty(broker.getPassword(), WMQConstants.PASSWORD);
+
+        factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
+        factory.setStringProperty(WMQConstants.USERID, broker.getUser());
+        factory.setStringProperty(WMQConstants.PASSWORD, broker.getPassword());
+        factory.setStringProperty(CMQC.USER_ID_PROPERTY, broker.getUser());
+        factory.setStringProperty(CMQC.PASSWORD_PROPERTY, broker.getPassword());
+
         return factory;
     }
 

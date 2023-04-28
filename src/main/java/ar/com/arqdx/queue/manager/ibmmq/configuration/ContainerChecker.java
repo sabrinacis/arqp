@@ -5,10 +5,10 @@ import org.springframework.jms.listener.SimpleMessageListenerContainer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class ContainerChecker {
 
-    @Autowired
+   // @Autowired
     SimpleMessageListenerContainer queueContainer;
 
     @Scheduled(fixedRate = 300000)

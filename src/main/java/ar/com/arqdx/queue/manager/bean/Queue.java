@@ -9,13 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.Session;
 
 @Component
 @Slf4j
 public class Queue implements IQueue {
 
-    private QueueManagerService ibmMQQueueService;
+    private QueueManagerService queueManagerService;
 
     private IBMMQManagerService iBMMQManagerService;
 
@@ -33,7 +35,7 @@ public class Queue implements IQueue {
 
     public Queue(String qName, QueueManagerService qService) {
         this.queueName = qName;
-        this.ibmMQQueueService = qService;
+        this.queueManagerService = qService;
     }
 
     public Queue(IBMMQManagerService iBMMQManagerService, String queueName) {
@@ -42,25 +44,28 @@ public class Queue implements IQueue {
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void sendMessage(String message) throws JMSException {
         log.info("Se envía mensaje");
-        this.ibmMQQueueService.send(queueName, message);
+        Message mess1 = session.createTextMessage(message);
+
+        messageProducer.getProducer().send(mess1);
     }
 
     @Override
-    public void consume() {
+    public void consume() throws JMSException {
         log.info("Se envía mensaje");
-        this.ibmMQQueueService.consume(queueName);
+        this.messageConsumer.getConsumer().receive();
     }
 
     @Override
-    public QueueManagerService getIbmMQQueueService() {
-        return ibmMQQueueService;
+    public QueueManagerService getQueueManagerService() {
+        return queueManagerService;
     }
 
-    public void setIbmMQQueueService(QueueManagerService ibmMQQueueService) {
-        this.ibmMQQueueService = ibmMQQueueService;
+    public void setQueueManagerService(QueueManagerService queueManagerService) {
+        this.queueManagerService = queueManagerService;
     }
+
     @Override
     public String getQueueName() {
         return queueName;
@@ -77,34 +82,42 @@ public class Queue implements IQueue {
     public void setiBMMQManagerService(IBMMQManagerService iBMMQManagerService) {
         this.iBMMQManagerService = iBMMQManagerService;
     }
+
     @Override
     public Session getSession() {
         return session;
     }
+
     @Override
     public void setSession(Session session) {
         this.session = session;
     }
+
     @Override
     public IMQMessageProducer getMessageProducer() {
         return messageProducer;
     }
+
     @Override
     public void setMessageProducer(IMQMessageProducer messageProducer) {
         this.messageProducer = messageProducer;
     }
+
     @Override
     public IMQMessageConsumer getMessageConsumer() {
         return messageConsumer;
     }
+
     @Override
     public void setMessageConsumer(IMQMessageConsumer messageConsumer) {
         this.messageConsumer = messageConsumer;
     }
+
     @Override
     public Connection getConnection() {
         return connection;
     }
+
     @Override
     public void setConnection(Connection connection) {
         this.connection = connection;

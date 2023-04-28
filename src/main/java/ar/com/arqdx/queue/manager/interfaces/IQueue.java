@@ -4,19 +4,20 @@ import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 
 import javax.jms.Connection;
+import javax.jms.JMSException;
 import javax.jms.Session;
 
 public interface IQueue {
 
     String getQueueName();
 
-    void sendMessage(String message);
+    void sendMessage(String message) throws JMSException;
 
-    void consume();
+    void consume() throws JMSException;
 
-    QueueManagerService getIbmMQQueueService();
+    QueueManagerService getQueueManagerService();
 
-    void setIbmMQQueueService(QueueManagerService ibmMQQueueService);
+    void setQueueManagerService(QueueManagerService queueManagerService);
 
     void setiBMMQManagerService(IBMMQManagerService iBMMQManagerService);
 
