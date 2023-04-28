@@ -1,6 +1,6 @@
 package ar.com.arqdx.queue.manager.controller;
 
-import ar.com.arqdx.queue.manager.bean.IQueue;
+import ar.com.arqdx.queue.manager.interfaces.IQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

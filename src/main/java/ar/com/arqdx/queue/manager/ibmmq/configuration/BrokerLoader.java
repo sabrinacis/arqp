@@ -1,6 +1,6 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
-import ar.com.arqdx.queue.manager.bean.IQueue;
+import ar.com.arqdx.queue.manager.interfaces.IQueue;
 
 import java.util.HashMap;
 import java.util.Map;
