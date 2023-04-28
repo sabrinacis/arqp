@@ -1,12 +1,10 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
-import ar.com.arqdx.queue.manager.interfaces.IMQMessageProducer;
-import ar.com.arqdx.queue.manager.interfaces.IQueue;
 import ar.com.arqdx.queue.manager.bean.Queue;
+import ar.com.arqdx.queue.manager.interfaces.IQueue;
 import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import com.ibm.mq.jms.MQConnectionFactory;
-import com.ibm.mq.jms.MQQueueConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
