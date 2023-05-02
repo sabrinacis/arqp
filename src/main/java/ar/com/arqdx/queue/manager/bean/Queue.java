@@ -33,6 +33,10 @@ public class Queue implements IQueue {
     public Queue() {
     }
 
+    public Queue(String queueName) {
+        this.queueName = queueName;
+    }
+
     public Queue(String qName, QueueManagerService qService) {
         this.queueName = qName;
         this.queueManagerService = qService;
