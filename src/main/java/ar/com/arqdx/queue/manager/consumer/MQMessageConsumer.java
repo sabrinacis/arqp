@@ -2,6 +2,7 @@ package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.interfaces.IMQMessageConsumer;
 
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
 public class MQMessageConsumer implements IMQMessageConsumer {
@@ -11,7 +12,10 @@ public class MQMessageConsumer implements IMQMessageConsumer {
         setConsumer(consumer);
     }
 
-
+    @Override
+    public void consume() throws JMSException {
+         this.consumer.receive();
+    }
     public MessageConsumer getConsumer() {
         return consumer;
     }

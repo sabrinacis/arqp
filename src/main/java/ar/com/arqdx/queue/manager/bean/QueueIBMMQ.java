@@ -2,7 +2,7 @@ package ar.com.arqdx.queue.manager.bean;
 
 import ar.com.arqdx.queue.manager.interfaces.IMQMessageConsumer;
 import ar.com.arqdx.queue.manager.interfaces.IMQMessageProducer;
-import ar.com.arqdx.queue.manager.interfaces.IQueue;
+import ar.com.arqdx.queue.manager.interfaces.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import javax.jms.Session;
 
 @Component
 @Slf4j
-public class Queue implements IQueue {
+public class Queue implements IQueueIBMMQ {
 
     private QueueManagerService queueManagerService;
 
@@ -23,12 +23,14 @@ public class Queue implements IQueue {
 
     private String queueName;
 
+    private Connection connection;
+
     private Session session;
 
     private IMQMessageProducer messageProducer;
     private IMQMessageConsumer messageConsumer;
 
-    private Connection connection;
+
 
     public Queue() {
     }

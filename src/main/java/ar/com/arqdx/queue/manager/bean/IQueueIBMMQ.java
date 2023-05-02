@@ -7,7 +7,7 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-public interface IQueue {
+public interface IQueueIBMMQ {
 
     String getQueueName();
 
