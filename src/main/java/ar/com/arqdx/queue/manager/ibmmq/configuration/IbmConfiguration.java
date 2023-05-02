@@ -1,10 +1,13 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
-import ar.com.arqdx.queue.manager.bean.Queue;
-import ar.com.arqdx.queue.manager.interfaces.IQueue;
-import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
-import ar.com.arqdx.queue.manager.service.QueueManagerService;
-import com.ibm.mq.constants.CMQC;
+import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
+import ar.com.arqdx.queue.manager.consumer.MQMessageConsumer;
+import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
+import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
+import ar.com.arqdx.queue.manager.properties.Broker;
+import ar.com.arqdx.queue.manager.properties.BrokerLoader;
+import ar.com.arqdx.queue.manager.properties.MQProperties;
+import ar.com.arqdx.queue.manager.properties.Queue;
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
 import org.slf4j.Logger;
@@ -21,9 +24,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 
@@ -49,16 +54,6 @@ public class IbmConfiguration {
     private BrokerLoader brokerLoader ;
 
 
-    @Autowired
-    IBMMQFactoryList iBMMQFactoryList;
-
-    @Autowired
-    private QueueManagerService queueManagerService;
-
-    @Autowired
-    private IBMMQManagerService iBMMQManagerService;
-
-
     @Bean
     public static BeanFactoryPostProcessor beanFactoryPostProcessor(
             Environment environment) {
@@ -71,11 +66,7 @@ public class IbmConfiguration {
                     BrokerLoader iBrokerLoader = new BrokerLoader();
                     beanFactory.registerSingleton("BrokerLoader", iBrokerLoader);
 
-                    IBMMQFactoryList iBMMQFactoryList = new IBMMQFactoryList();
-                    beanFactory.registerSingleton("iBMMQFactoryList", iBMMQFactoryList);
-                    System.out.println("-->>>> contains Bean IBMMQFactoryList :: " + beanFactory.containsBean("iBMMQFactoryList"));
-
-                    MQConnectionProperties properties = getMQConnectionProperties(environment);
+                    MQProperties properties = getMQConnectionProperties(environment);
 
                     int i = 0;
                     for (Broker broker : properties.getBroker()) {
@@ -87,12 +78,10 @@ public class IbmConfiguration {
                         //AUTO_ACKNOWLEDGE: La sesión acusa recibo automáticamente de cada mensaje recibido por la aplicación.
                         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-                        iBMMQFactoryList.getFactoryList().add(factory);
-
                         int j = 0;
-                        for (ar.com.arqdx.queue.manager.ibmmq.configuration.Queue q1 : broker.getQueue()) {
+                        for (Queue q1 : broker.getQueue()) {
                             // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
-                            IQueue ibean =  new Queue(getBeanName( i, j));
+                            IQueueIBMMQ ibean =  new QueueIBMMQ(getBeanName( i, j));
                             ibean.setSession(session);
                             ibean.setConnection(connection);
 
@@ -122,10 +111,8 @@ public class IbmConfiguration {
 
     @PostConstruct
     public void factoryList() {
-        for (Map.Entry<String, IQueue> entry : brokerLoader.getQueues().entrySet()) {
-            IQueue iQueue1 = entry.getValue();
-            iQueue1.setQueueManagerService(queueManagerService);
-            iQueue1.setiBMMQManagerService(iBMMQManagerService);
+        for (Map.Entry<String, IQueueIBMMQ> entry : brokerLoader.getQueues().entrySet()) {
+            IQueueIBMMQ iQueue1 = entry.getValue();
         }
     }
 
@@ -135,9 +122,9 @@ public class IbmConfiguration {
     }
 
 
-    private static MQConnectionProperties getMQConnectionProperties(Environment environment) {
-        BindResult<MQConnectionProperties> result = Binder.get(environment)
-                .bind(MQ, MQConnectionProperties.class);
+    private static MQProperties getMQConnectionProperties(Environment environment) {
+        BindResult<MQProperties> result = Binder.get(environment)
+                .bind(MQ, MQProperties.class);
         return result.get();
     }
 

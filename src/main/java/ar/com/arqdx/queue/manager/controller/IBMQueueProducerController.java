@@ -1,6 +1,6 @@
 package ar.com.arqdx.queue.manager.controller;
 
-import ar.com.arqdx.queue.manager.interfaces.IQueue;
+import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,11 +18,11 @@ public class IBMQueueProducerController {
 
     @Autowired
     @Qualifier("broker0.queue0")
-    private IQueue queue0;
+    private IQueueIBMMQ queue0;
 
     @Autowired
     @Qualifier("broker0.queue1")
-    private IQueue queue1;
+    private IQueueIBMMQ queue1;
 
     @GetMapping("send")
     public ResponseEntity<String> send() throws IOException, JMSException {

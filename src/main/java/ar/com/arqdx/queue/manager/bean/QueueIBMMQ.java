@@ -1,9 +1,7 @@
 package ar.com.arqdx.queue.manager.bean;
 
-import ar.com.arqdx.queue.manager.interfaces.IMQMessageConsumer;
-import ar.com.arqdx.queue.manager.interfaces.IMQMessageProducer;
-import ar.com.arqdx.queue.manager.interfaces.IQueueIBMMQ;
-import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
+import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
+import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,11 +13,7 @@ import javax.jms.Session;
 
 @Component
 @Slf4j
-public class Queue implements IQueueIBMMQ {
-
-    private QueueManagerService queueManagerService;
-
-    private IBMMQManagerService iBMMQManagerService;
+public class QueueIBMMQ implements IQueueIBMMQ {
 
     private String queueName;
 
@@ -30,22 +24,10 @@ public class Queue implements IQueueIBMMQ {
     private IMQMessageProducer messageProducer;
     private IMQMessageConsumer messageConsumer;
 
-
-
-    public Queue() {
+    public QueueIBMMQ() {
     }
 
-    public Queue(String queueName) {
-        this.queueName = queueName;
-    }
-
-    public Queue(String qName, QueueManagerService qService) {
-        this.queueName = qName;
-        this.queueManagerService = qService;
-    }
-
-    public Queue(IBMMQManagerService iBMMQManagerService, String queueName) {
-        this.iBMMQManagerService = iBMMQManagerService;
+    public QueueIBMMQ(String queueName) {
         this.queueName = queueName;
     }
 
@@ -54,22 +36,13 @@ public class Queue implements IQueueIBMMQ {
         log.info("Se envía mensaje");
         Message mess1 = session.createTextMessage(message);
 
-        messageProducer.getProducer().send(mess1);
+        messageProducer.sendMessage(mess1);
     }
 
     @Override
     public void consume() throws JMSException {
         log.info("Se envía mensaje");
-        this.messageConsumer.getConsumer().receive();
-    }
-
-    @Override
-    public QueueManagerService getQueueManagerService() {
-        return queueManagerService;
-    }
-
-    public void setQueueManagerService(QueueManagerService queueManagerService) {
-        this.queueManagerService = queueManagerService;
+        this.messageConsumer.consume();
     }
 
     @Override
@@ -79,14 +52,6 @@ public class Queue implements IQueueIBMMQ {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
-    }
-
-    public IBMMQManagerService getiBMMQManagerService() {
-        return iBMMQManagerService;
-    }
-
-    public void setiBMMQManagerService(IBMMQManagerService iBMMQManagerService) {
-        this.iBMMQManagerService = iBMMQManagerService;
     }
 
     @Override

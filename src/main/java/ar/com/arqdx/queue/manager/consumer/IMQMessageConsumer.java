@@ -1,7 +1,6 @@
-package ar.com.arqdx.queue.manager.interfaces;
+package ar.com.arqdx.queue.manager.consumer;
 
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
 
 public interface IMQMessageConsumer {
     void consume() throws JMSException;

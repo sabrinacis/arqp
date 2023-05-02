@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.interfaces;
+package ar.com.arqdx.queue.manager.producer;
 
 import javax.jms.JMSException;
 import javax.jms.Message;

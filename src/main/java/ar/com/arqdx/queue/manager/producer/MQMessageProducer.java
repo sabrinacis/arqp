@@ -1,6 +1,6 @@
-package ar.com.arqdx.queue.manager.ibmmq.configuration;
+package ar.com.arqdx.queue.manager.producer;
 
-import ar.com.arqdx.queue.manager.interfaces.IMQMessageProducer;
+import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
 
 import javax.jms.JMSException;
 import javax.jms.Message;

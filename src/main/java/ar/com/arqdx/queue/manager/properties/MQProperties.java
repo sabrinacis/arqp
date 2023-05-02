@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.ibmmq.configuration;
+package ar.com.arqdx.queue.manager.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 @ConfigurationProperties(prefix = "mq")
 @ConfigurationPropertiesScan
-public class MQConnectionProperties {
+public class MQProperties {
 
     private List<Broker> broker;
 

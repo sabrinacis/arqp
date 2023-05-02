@@ -1,6 +1,7 @@
-package ar.com.arqdx.queue.manager.interfaces;
+package ar.com.arqdx.queue.manager.bean;
 
-import ar.com.arqdx.queue.manager.service.IBMMQManagerService;
+import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
+import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 
 import javax.jms.Connection;
@@ -14,12 +15,6 @@ public interface IQueueIBMMQ {
     void sendMessage(String message) throws JMSException;
 
     void consume() throws JMSException;
-
-    QueueManagerService getQueueManagerService();
-
-    void setQueueManagerService(QueueManagerService queueManagerService);
-
-    void setiBMMQManagerService(IBMMQManagerService iBMMQManagerService);
 
     void setSession(Session session);
 
