@@ -4,6 +4,7 @@ import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
 import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.jms.Connection;
@@ -18,6 +19,8 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     private String queueName;
 
     private Connection connection;
+
+    private JmsListenerContainerFactory jmsListenerContainerFactory;
 
     private Session session;
 
@@ -92,6 +95,14 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     @Override
     public void setConnection(Connection connection) {
         this.connection = connection;
+    }
+    @Override
+    public JmsListenerContainerFactory getJmsListenerContainerFactory() {
+        return jmsListenerContainerFactory;
+    }
+    @Override
+    public void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory) {
+        this.jmsListenerContainerFactory = jmsListenerContainerFactory;
     }
 
     @Override

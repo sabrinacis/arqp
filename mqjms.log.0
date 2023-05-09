@@ -671,3 +671,39 @@ An attempt was made to deliver an exception to the connections exception listene
 ACTION:
 An exception listener must be registered with the connection to receive its exceptions.
 --------------------------------------------------------------------
+May 8, 2023 7:50:53 PM ART[org.springframework.jms.JmsListenerEndpointContainer#0-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 8, 2023 9:14:41 PM ART[org.springframework.jms.JmsListenerEndpointContainer#0-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 8, 2023 10:20:47 PM ART[org.springframework.jms.JmsListenerEndpointContainer#0-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 8, 2023 10:25:11 PM ART[org.springframework.jms.JmsListenerEndpointContainer#0-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------

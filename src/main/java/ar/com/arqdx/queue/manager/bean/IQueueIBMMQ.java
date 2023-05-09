@@ -3,6 +3,7 @@ package ar.com.arqdx.queue.manager.bean;
 import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
 import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
 import ar.com.arqdx.queue.manager.service.QueueManagerService;
+import org.springframework.jms.config.JmsListenerContainerFactory;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -31,5 +32,8 @@ public interface IQueueIBMMQ {
     Connection getConnection();
 
     void setConnection(Connection connection);
+
+    JmsListenerContainerFactory getJmsListenerContainerFactory();
+    void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory);
 
 }

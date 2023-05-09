@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager.ibmmq.configuration;
+package ar.com.arqdx.queue.manager.listener;
 
 import org.springframework.stereotype.Component;
 

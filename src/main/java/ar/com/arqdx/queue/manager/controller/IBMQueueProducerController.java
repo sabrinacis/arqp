@@ -35,9 +35,9 @@ public class IBMQueueProducerController {
         return ResponseEntity.ok("ok");
     }
 
-    @GetMapping("send/{value}")
-    public ResponseEntity<String> values(@PathVariable String value) throws IOException, JMSException {
-        log.info("'VALUES' - Se va a enviar el mensaje: {}", value);
+    @GetMapping("send1/{value}")
+    public ResponseEntity<String> values1(@PathVariable String value) throws IOException, JMSException {
+        log.info("'send1' - Se va a enviar el mensaje: {}", value);
 
         log.info(queue0.toString());
 
@@ -46,9 +46,10 @@ public class IBMQueueProducerController {
         return ResponseEntity.ok("ok");
     }
 
+
     @GetMapping("send2/{value}")
     public ResponseEntity<String> values2(@PathVariable String value) throws IOException, JMSException {
-        log.info("'VALUES2' - Se va a enviar el mensaje: {}", value);
+        log.info("'send2' - Se va a enviar el mensaje: {}", value);
 
         log.info(queue1.toString());
 
@@ -59,7 +60,7 @@ public class IBMQueueProducerController {
 
     @GetMapping("consume2")
     public ResponseEntity<String> consume2() throws IOException, JMSException {
-        log.info("'VALUES2' - consumiendo el mensaje " );
+        log.info("'VALUES2' - consumiendo el mensaje ");
 
         log.info(queue1.toString());
 

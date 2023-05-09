@@ -22,14 +22,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
+import org.springframework.jms.support.destination.DestinationResolver;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 import javax.annotation.PostConstruct;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import javax.jms.*;
 import java.io.IOException;
-import java.util.Map;
 
 
 @Configuration
@@ -41,7 +44,7 @@ public class IbmConfiguration {
 
     private static final String QUEUE = ".queue";
 
-    private static final String MQ= "mq";
+    private static final String MQ = "mq";
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -51,7 +54,7 @@ public class IbmConfiguration {
 
 
     @Autowired
-    private BrokerLoader brokerLoader ;
+    private BrokerLoader brokerLoader;
 
 
     @Bean
@@ -81,7 +84,7 @@ public class IbmConfiguration {
                         int j = 0;
                         for (Queue q1 : broker.getQueue()) {
                             // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
-                            IQueueIBMMQ ibean =  new QueueIBMMQ(getBeanName( i, j));
+                            IQueueIBMMQ ibean = new QueueIBMMQ(q1.getName().trim());
                             ibean.setSession(session);
                             ibean.setConnection(connection);
 
@@ -91,13 +94,23 @@ public class IbmConfiguration {
                             ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
                             ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination)));
 
-                            beanFactory.registerSingleton(ibean.getQueueName(), ibean);
+                            JmsListenerContainerFactory jmsListenerContainerFactory1 = jmsListenerContainerFactory(factory, session, ibean.getQueueName());
+                            ibean.setJmsListenerContainerFactory(jmsListenerContainerFactory1);
+
+                            beanFactory.registerSingleton(getBeanName(i, j), ibean);
 
                             iBrokerLoader.getQueues().put(ibean.getQueueName(), ibean);
                             j = j + 1;
                         }
                         i = i + 1;
                         connection.start();
+
+                        for (String bean_name : beanFactory.getRegisteredScopeNames()) {
+                            System.out.println("bean_name1:: " + bean_name);
+                        }
+                        for (String bean_name : beanFactory.getBeanDefinitionNames()) {
+                            System.out.println("bean_name2:: " + bean_name);
+                        }
                     }
 
                 } catch (JMSException e) {
@@ -108,12 +121,32 @@ public class IbmConfiguration {
     }
 
 
+    public static JmsListenerContainerFactory jmsListenerContainerFactory(MQConnectionFactory mqConnectionfactory, Session session, String qName) throws JMSException {
+        DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
+        containerFactory.setConnectionFactory(mqConnectionfactory);
+        containerFactory.setSessionTransacted(true);
+        containerFactory.setConcurrency("5");
+        DestinationResolver destinationResolver = new DynamicDestinationResolver();
+        destinationResolver.resolveDestinationName(session, qName, false);
+        containerFactory.setDestinationResolver(destinationResolver);
+        containerFactory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+        return containerFactory;
+    }
+
+    // TODO IMPLEMENTAR SERIALIZACION DE MENSAJES...........
+    @Bean // Serialize message content to json using TextMessage
+    public MessageConverter jacksonJmsMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type");
+        return converter;
+    }
+
 
     @PostConstruct
     public void factoryList() {
-        for (Map.Entry<String, IQueueIBMMQ> entry : brokerLoader.getQueues().entrySet()) {
-            IQueueIBMMQ iQueue1 = entry.getValue();
-        }
+
+        System.out.println("PostConstruct........ ");
     }
 
     @Bean
@@ -129,7 +162,6 @@ public class IbmConfiguration {
     }
 
 
-
     private static MQConnectionFactory getMQConnectionFactory(Broker broker) throws JMSException {
         // Genera Connection Factory
         MQConnectionFactory factory = new MQConnectionFactory();
@@ -142,13 +174,13 @@ public class IbmConfiguration {
         factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
         factory.setStringProperty(WMQConstants.USERID, broker.getUser());
         factory.setStringProperty(WMQConstants.PASSWORD, broker.getPassword());
- //       factory.setStringProperty(CMQC.USER_ID_PROPERTY, broker.getUser());
- //       factory.setStringProperty(CMQC.PASSWORD_PROPERTY, broker.getPassword());
+        //       factory.setStringProperty(CMQC.USER_ID_PROPERTY, broker.getUser());
+        //       factory.setStringProperty(CMQC.PASSWORD_PROPERTY, broker.getPassword());
 
         return factory;
     }
 
- 
+
     private static String getBeanName(int i, int j) {
         StringBuffer beanName = new StringBuffer();
         beanName.append(BROKER).append(i).append(QUEUE).append(j);
