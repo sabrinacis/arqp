@@ -6,7 +6,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 
 @Component(value="responseListener")
-public class ResponseListener implements MessageListener {
+public class ContainerListener implements MessageListener {
 
     public void onMessage(Message message) {
         //TODO

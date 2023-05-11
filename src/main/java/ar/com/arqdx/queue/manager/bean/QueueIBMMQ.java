@@ -1,16 +1,13 @@
 package ar.com.arqdx.queue.manager.bean;
 
 import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
+import ar.com.arqdx.queue.manager.message.IArqDxMessage;
 import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
-import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
+import javax.jms.*;
 
 @Component
 @Slf4j
@@ -35,11 +32,11 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     }
 
     @Override
-    public void sendMessage(String message) throws JMSException {
+    public void sendMessage(IArqDxMessage msg1) throws JMSException {
         log.info("Se envía mensaje");
-        Message mess1 = session.createTextMessage(message);
-
-        messageProducer.sendMessage(mess1);
+        ObjectMessage message = session.createObjectMessage();
+        message.setObject(msg1);
+        messageProducer.sendMessage(message);
     }
 
     @Override
@@ -96,10 +93,12 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     public void setConnection(Connection connection) {
         this.connection = connection;
     }
+
     @Override
     public JmsListenerContainerFactory getJmsListenerContainerFactory() {
         return jmsListenerContainerFactory;
     }
+
     @Override
     public void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;

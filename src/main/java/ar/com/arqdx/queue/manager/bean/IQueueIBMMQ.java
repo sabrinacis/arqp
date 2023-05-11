@@ -1,8 +1,8 @@
 package ar.com.arqdx.queue.manager.bean;
 
 import ar.com.arqdx.queue.manager.consumer.IMQMessageConsumer;
+import ar.com.arqdx.queue.manager.message.IArqDxMessage;
 import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
-import ar.com.arqdx.queue.manager.service.QueueManagerService;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 
 import javax.jms.Connection;
@@ -13,7 +13,7 @@ public interface IQueueIBMMQ {
 
     String getQueueName();
 
-    void sendMessage(String message) throws JMSException;
+    void sendMessage(IArqDxMessage message) throws JMSException;
 
     void consume() throws JMSException;
 

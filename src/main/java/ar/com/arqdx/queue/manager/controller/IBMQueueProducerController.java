@@ -1,6 +1,7 @@
 package ar.com.arqdx.queue.manager.controller;
 
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
+import ar.com.arqdx.queue.manager.message.QueueMessageTX;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,24 +25,13 @@ public class IBMQueueProducerController {
     @Qualifier("broker0.queue1")
     private IQueueIBMMQ queue1;
 
-    @GetMapping("send")
-    public ResponseEntity<String> send() throws IOException, JMSException {
-        log.info("'VALUES' - Se va a enviar el mensaje ");
-
-        log.info(queue0.toString());
-
-        queue0.sendMessage("--> Send value");
-
-        return ResponseEntity.ok("ok");
-    }
-
     @GetMapping("send1/{value}")
     public ResponseEntity<String> values1(@PathVariable String value) throws IOException, JMSException {
         log.info("'send1' - Se va a enviar el mensaje: {}", value);
 
         log.info(queue0.toString());
 
-        queue0.sendMessage(value);
+        queue0.sendMessage(new QueueMessageTX("1",value));
 
         return ResponseEntity.ok("ok");
     }
@@ -53,7 +43,7 @@ public class IBMQueueProducerController {
 
         log.info(queue1.toString());
 
-        queue1.sendMessage(value);
+        queue1.sendMessage(new QueueMessageTX("2",value));
 
         return ResponseEntity.ok("ok");
     }

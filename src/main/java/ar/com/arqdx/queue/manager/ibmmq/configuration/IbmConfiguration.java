@@ -25,7 +25,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
-import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -126,6 +125,7 @@ public class IbmConfiguration {
         containerFactory.setConnectionFactory(mqConnectionfactory);
         containerFactory.setSessionTransacted(true);
         containerFactory.setConcurrency("5");
+        containerFactory.setMessageConverter(jacksonJmsMessageConverter());
         DestinationResolver destinationResolver = new DynamicDestinationResolver();
         destinationResolver.resolveDestinationName(session, qName, false);
         containerFactory.setDestinationResolver(destinationResolver);
@@ -134,8 +134,8 @@ public class IbmConfiguration {
     }
 
     // TODO IMPLEMENTAR SERIALIZACION DE MENSAJES...........
-    @Bean // Serialize message content to json using TextMessage
-    public MessageConverter jacksonJmsMessageConverter() {
+//    @Bean // Serialize message content to json using TextMessage
+    public static MappingJackson2MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
