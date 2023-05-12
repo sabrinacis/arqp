@@ -1,7 +1,6 @@
 package ar.com.arqdx.queue.manager.annotation;
 
 
-import org.springframework.jms.annotation.JmsListeners;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 
 import java.lang.annotation.*;
@@ -11,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 @Repeatable(QueueListeners.class)
 @MessageMapping
-public @interface ArqDxQueueListener {
+public @interface DxAnnotationJmsListener {
     String id() default "";
 
     String containerFactory() default "";

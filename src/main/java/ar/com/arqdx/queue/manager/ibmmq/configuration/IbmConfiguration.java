@@ -1,6 +1,7 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
+import ar.com.arqdx.queue.manager.client.ArqDXMessageListener;
 import ar.com.arqdx.queue.manager.consumer.MQMessageConsumer;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
@@ -24,14 +25,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 
 @Configuration
@@ -47,6 +48,10 @@ public class IbmConfiguration {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private static Executor taskExecutor;
+
 
     @Autowired
     private Broker brokers;
@@ -65,6 +70,7 @@ public class IbmConfiguration {
             public void postProcessBeanFactory(
                     ConfigurableListableBeanFactory beanFactory) throws BeansException {
                 try {
+
                     BrokerLoader iBrokerLoader = new BrokerLoader();
                     beanFactory.registerSingleton("BrokerLoader", iBrokerLoader);
 
@@ -87,14 +93,21 @@ public class IbmConfiguration {
                             ibean.setSession(session);
                             ibean.setConnection(connection);
 
-
                             Destination producerDestination = session.createQueue(q1.getName());
 
                             ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
                             ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination)));
 
-                            JmsListenerContainerFactory jmsListenerContainerFactory1 = jmsListenerContainerFactory(factory, session, ibean.getQueueName());
-                            ibean.setJmsListenerContainerFactory(jmsListenerContainerFactory1);
+                            ArqDXMessageListener arqDXMessageListener = new ArqDXMessageListener();
+                            beanFactory.registerSingleton( getBeanName(i, j).concat("arqDXMessageListener"), arqDXMessageListener);
+
+                            DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(),
+                                    arqDXMessageListener, factory, session);
+
+
+                            iBrokerLoader.getListenerContainerMap().put((MessageListener) arqDXMessageListener, messageListenerContainer);
+
+                         //   ibean.setListenerContainerFactory(messageListenerContainer);
 
                             beanFactory.registerSingleton(getBeanName(i, j), ibean);
 
@@ -125,7 +138,6 @@ public class IbmConfiguration {
         containerFactory.setConnectionFactory(mqConnectionfactory);
         containerFactory.setSessionTransacted(true);
         containerFactory.setConcurrency("5");
-        containerFactory.setMessageConverter(jacksonJmsMessageConverter());
         DestinationResolver destinationResolver = new DynamicDestinationResolver();
         destinationResolver.resolveDestinationName(session, qName, false);
         containerFactory.setDestinationResolver(destinationResolver);
@@ -133,13 +145,20 @@ public class IbmConfiguration {
         return containerFactory;
     }
 
-    // TODO IMPLEMENTAR SERIALIZACION DE MENSAJES...........
-//    @Bean // Serialize message content to json using TextMessage
-    public static MappingJackson2MessageConverter jacksonJmsMessageConverter() {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setTargetType(MessageType.TEXT);
-        converter.setTypeIdPropertyName("_type");
-        return converter;
+    public static DefaultMessageListenerContainer registerMessageListener(String destinationName,
+                                                                          MessageListener listener, ConnectionFactory connectionFactory, Session session) throws JMSException {
+        LOGGER.info("registerMessageListener(" + destinationName + ", " + listener + ")");
+        DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setDestinationName(destinationName);
+        container.setMessageListener(listener);
+        container.setTaskExecutor(taskExecutor);
+        container.afterPropertiesSet();
+        DestinationResolver destinationResolver = new DynamicDestinationResolver();
+        destinationResolver.resolveDestinationName(session, destinationName, false);
+        container.setDestinationResolver(destinationResolver);
+        container.start();
+        return container;
     }
 
 
@@ -151,7 +170,7 @@ public class IbmConfiguration {
 
     @Bean
     public BrokerLoader getBrokerLoader() throws IOException {
-        return new BrokerLoader();
+        return brokerLoader;
     }
 
 

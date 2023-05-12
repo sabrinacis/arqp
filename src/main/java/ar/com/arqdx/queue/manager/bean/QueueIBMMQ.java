@@ -94,12 +94,12 @@ public class QueueIBMMQ implements IQueueIBMMQ {
         this.connection = connection;
     }
 
-    @Override
+
     public JmsListenerContainerFactory getJmsListenerContainerFactory() {
         return jmsListenerContainerFactory;
     }
 
-    @Override
+
     public void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
     }

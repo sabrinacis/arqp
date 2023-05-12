@@ -707,3 +707,48 @@ null
 ACTION:
 null
 --------------------------------------------------------------------
+May 11, 2023 2:25:19 AM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 11, 2023 11:57:51 AM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 12, 2023 12:33:36 AM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 12, 2023 12:36:55 AM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
+May 12, 2023 12:41:11 AM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------

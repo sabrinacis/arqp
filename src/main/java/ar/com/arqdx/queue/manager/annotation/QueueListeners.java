@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface QueueListeners {
-    ArqDxQueueListener[] value();
+    DxAnnotationJmsListener[] value();
 }
