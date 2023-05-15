@@ -147,9 +147,9 @@ public class IbmConfiguration {
 
 
             MQListner objetoDeMiClase = new MQListner();
-
+            MQListner b1 =applicationContext.getBean(objetoDeMiClase.getClass());
             Class<? extends MQListner> objetoDeClassConInfoDeMiClase = objetoDeMiClase.getClass();
-
+            objetoDeClassConInfoDeMiClase.newInstance();
             //      anotationImplDxJmsListener.queueJmsListener(objetoDeClassConInfoDeMiClase);
 
             // recorremos todos los métodos de cada clase
@@ -168,6 +168,9 @@ public class IbmConfiguration {
                             Map<String, IQueueIBMMQ> queues = bean1.getQueues();
                             IQueueIBMMQ q1 = queues.get(annotationMessage);
                             Object listener = q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
+
+
+                            Object result = method.invoke(b1,"parametros");
 
 
                             System.out.println("<< onMessage VALUE:: " + annotationMessage + " >>");
