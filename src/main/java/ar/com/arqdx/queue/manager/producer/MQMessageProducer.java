@@ -1,8 +1,5 @@
 package ar.com.arqdx.queue.manager.producer;
 
-import ar.com.arqdx.queue.manager.message.IArqDxMessage;
-import ar.com.arqdx.queue.manager.producer.IMQMessageProducer;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;

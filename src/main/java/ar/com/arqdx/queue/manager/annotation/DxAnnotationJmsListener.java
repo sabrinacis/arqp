@@ -1,25 +1,15 @@
 package ar.com.arqdx.queue.manager.annotation;
 
 
-import org.springframework.messaging.handler.annotation.MessageMapping;
+import jdk.nashorn.internal.objects.NativeDebug;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Repeatable(QueueListeners.class)
-@MessageMapping
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface DxAnnotationJmsListener {
-    String id() default "";
-
-    String containerFactory() default "";
-
-    String destination();
-
-    String subscription() default "";
-
-    String selector() default "";
-
-    String concurrency() default "";
+      String destination();
 }

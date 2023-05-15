@@ -1,9 +1,13 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
+import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
+import ar.com.arqdx.queue.manager.annotation.DxJmsListener;
+import ar.com.arqdx.queue.manager.annotation.DxJmsListener2;
+import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
 import ar.com.arqdx.queue.manager.client.ArqDXMessageListener;
 import ar.com.arqdx.queue.manager.consumer.MQMessageConsumer;
-import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
+import ar.com.arqdx.queue.manager.listener.MQListner;
 import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
 import ar.com.arqdx.queue.manager.properties.Broker;
 import ar.com.arqdx.queue.manager.properties.BrokerLoader;
@@ -31,7 +35,9 @@ import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 
@@ -56,9 +62,8 @@ public class IbmConfiguration {
     @Autowired
     private Broker brokers;
 
-
     @Autowired
-    private BrokerLoader brokerLoader;
+    private DxJmsListener2 anotationImplDxJmsListener;
 
 
     @Bean
@@ -71,8 +76,8 @@ public class IbmConfiguration {
                     ConfigurableListableBeanFactory beanFactory) throws BeansException {
                 try {
 
-                    BrokerLoader iBrokerLoader = new BrokerLoader();
-                    beanFactory.registerSingleton("BrokerLoader", iBrokerLoader);
+                    BrokerLoader brokerLoader = new BrokerLoader();
+                    beanFactory.registerSingleton("brokerLoader", brokerLoader);
 
                     MQProperties properties = getMQConnectionProperties(environment);
 
@@ -95,23 +100,17 @@ public class IbmConfiguration {
 
                             Destination producerDestination = session.createQueue(q1.getName());
 
-                            ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
-                            ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination)));
-
                             ArqDXMessageListener arqDXMessageListener = new ArqDXMessageListener();
-                            beanFactory.registerSingleton( getBeanName(i, j).concat("arqDXMessageListener"), arqDXMessageListener);
-
-                            DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(),
-                                    arqDXMessageListener, factory, session);
+                            DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(), arqDXMessageListener, factory, session);
 
 
-                            iBrokerLoader.getListenerContainerMap().put((MessageListener) arqDXMessageListener, messageListenerContainer);
-
-                         //   ibean.setListenerContainerFactory(messageListenerContainer);
+                            ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
+                            ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination), messageListenerContainer));
 
                             beanFactory.registerSingleton(getBeanName(i, j), ibean);
 
-                            iBrokerLoader.getQueues().put(ibean.getQueueName(), ibean);
+                            brokerLoader.getQueues().put(ibean.getQueueName(), ibean);
+
                             j = j + 1;
                         }
                         i = i + 1;
@@ -133,17 +132,63 @@ public class IbmConfiguration {
     }
 
 
-    public static JmsListenerContainerFactory jmsListenerContainerFactory(MQConnectionFactory mqConnectionfactory, Session session, String qName) throws JMSException {
-        DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
-        containerFactory.setConnectionFactory(mqConnectionfactory);
-        containerFactory.setSessionTransacted(true);
-        containerFactory.setConcurrency("5");
-        DestinationResolver destinationResolver = new DynamicDestinationResolver();
-        destinationResolver.resolveDestinationName(session, qName, false);
-        containerFactory.setDestinationResolver(destinationResolver);
-        containerFactory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-        return containerFactory;
+    @PostConstruct
+    public void factoryList() {
+
+        System.out.println("PostConstruct-------------> Implementamos la anotacion ");
+
+        // Implementamos la anotacion
+
+        try {
+
+
+// recorremos todas las clases
+            //  for (Class<?> qlass : allClasses) {
+
+
+            MQListner objetoDeMiClase = new MQListner();
+
+            Class<? extends MQListner> objetoDeClassConInfoDeMiClase = objetoDeMiClase.getClass();
+
+            //      anotationImplDxJmsListener.queueJmsListener(objetoDeClassConInfoDeMiClase);
+
+            // recorremos todos los métodos de cada clase
+            for (Method method : objetoDeClassConInfoDeMiClase.getDeclaredMethods()) {
+
+                // si hace uso de nuestra anotación "@MessageFilter()"
+                if (method.isAnnotationPresent(DxAnnotationJmsListener.class)) {
+
+                    String annotationMessage = method.getAnnotation(DxAnnotationJmsListener.class).destination();
+
+                    // y si ademas, el mensaje recibido del socket, es igual al de la anotación
+                    if (annotationMessage != null) {
+                        System.out.println("<< DESTINATION VALUE:: " + annotationMessage + " >>");
+                        if (applicationContext.containsBean("brokerLoader")) {
+                            BrokerLoader bean1 = (BrokerLoader) applicationContext.getBean("brokerLoader");
+                            Map<String, IQueueIBMMQ> queues = bean1.getQueues();
+                            IQueueIBMMQ q1 = queues.get(annotationMessage);
+                            Object listener = q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
+
+
+                            System.out.println("<< onMessage VALUE:: " + annotationMessage + " >>");
+                        }
+
+
+                        // entonces ejecutamos el método por reflection
+                        //    String returnedMessage = (String) method.invoke(objetoDeClassConInfoDeMiClase.newInstance());
+                        //   returnedMessage += "\n";
+                        // y el retorno, se lo devolvemos al socket cliente!
+                        //    System.out.println("<<*>>" + returnedMessage);
+
+                    }
+                }
+            }
+            //    }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     public static DefaultMessageListenerContainer registerMessageListener(String destinationName,
                                                                           MessageListener listener, ConnectionFactory connectionFactory, Session session) throws JMSException {
@@ -161,16 +206,23 @@ public class IbmConfiguration {
         return container;
     }
 
-
-    @PostConstruct
-    public void factoryList() {
-
-        System.out.println("PostConstruct........ ");
+    public JmsListenerContainerFactory<?> jmsListenerContainerQueue(ConnectionFactory activeMQConnectionFactory) {
+        DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
+        bean.setConnectionFactory(activeMQConnectionFactory);
+        bean.setPubSubDomain(Boolean.FALSE);
+        return bean;
     }
 
-    @Bean
-    public BrokerLoader getBrokerLoader() throws IOException {
-        return brokerLoader;
+    public static JmsListenerContainerFactory jmsListenerContainerFactory(MQConnectionFactory mqConnectionfactory, Session session, String qName) throws JMSException {
+        DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
+        containerFactory.setConnectionFactory(mqConnectionfactory);
+        containerFactory.setSessionTransacted(true);
+        containerFactory.setConcurrency("5");
+        DestinationResolver destinationResolver = new DynamicDestinationResolver();
+        destinationResolver.resolveDestinationName(session, qName, false);
+        containerFactory.setDestinationResolver(destinationResolver);
+        containerFactory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+        return containerFactory;
     }
 
 
