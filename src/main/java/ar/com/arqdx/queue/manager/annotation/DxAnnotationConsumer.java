@@ -1,4 +1,4 @@
-package ar.com.arqdx.queue.manager;
+package ar.com.arqdx.queue.manager.annotation;
 
 
 import java.lang.annotation.ElementType;

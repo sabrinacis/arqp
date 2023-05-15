@@ -1,7 +1,6 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
-import ar.com.arqdx.queue.manager.annotation.DxJmsListener2;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
 import ar.com.arqdx.queue.manager.client.ArqDXMessageListener;
@@ -61,9 +60,6 @@ public class IbmConfiguration {
 
     @Autowired
     private Broker brokers;
-
-    @Autowired
-    private DxJmsListener2 anotationImplDxJmsListener;
 
 
     @Bean
@@ -150,7 +146,6 @@ public class IbmConfiguration {
             MQListner b1 =applicationContext.getBean(objetoDeMiClase.getClass());
             Class<? extends MQListner> objetoDeClassConInfoDeMiClase = objetoDeMiClase.getClass();
             objetoDeClassConInfoDeMiClase.newInstance();
-            //      anotationImplDxJmsListener.queueJmsListener(objetoDeClassConInfoDeMiClase);
 
             // recorremos todos los métodos de cada clase
             for (Method method : objetoDeClassConInfoDeMiClase.getDeclaredMethods()) {

@@ -1,7 +1,6 @@
 package ar.com.arqdx.queue.manager.listener;
 
-import ar.com.arqdx.queue.manager.DxAnnotationConsumer;
-import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
+import ar.com.arqdx.queue.manager.annotation.DxAnnotationConsumer;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+
 @DxAnnotationConsumer
 @Component
 public class MQListner {
@@ -21,23 +21,22 @@ public class MQListner {
     @Qualifier("broker0.queue1")
     private IQueueIBMMQ queue1;
 
- //   @JmsListener(destination = "DEV.QUEUE.VALUES")
-    @DxAnnotationJmsListener(destination = "DEV.QUEUE.VALUES")
-    // public void receive1(String msg) throws JMSException {
-        public void receive1(Message msg) throws JMSException {
+    //   @JmsListener(destination = "DEV.QUEUE.VALUES")
+   // @DxAnnotationJmsListener(destination = "DEV.QUEUE.VALUES")
+    public void receive1(Message msg) throws JMSException {
         System.out.println("<< @DxAnnotationJmsListener >> MENSAJE RECIBIDO DE " + queue0.getQueueName() + " --> " + msg);
 
-    //    Object command = ((ObjectMessage) msg).getObject();
-      //  System.out.println("MENSAJE " + queue0.getQueueName() + " --> " + command);
+        //    Object command = ((ObjectMessage) msg).getObject();
+        //  System.out.println("MENSAJE " + queue0.getQueueName() + " --> " + command);
 
     }
 
-    @DxAnnotationJmsListener(destination = "DEV.QUEUE.VALUES2")
+ //   @DxAnnotationJmsListener(destination = "DEV.QUEUE.VALUES2")
     public void receive2(Message msg) throws JMSException {
         System.out.println("<< @DxAnnotationJmsListener >> MENSAJE RECIBIDO DE " + queue1.getQueueName() + " --> " + msg);
 
-     //   Object command = ((ObjectMessage) msg).getObject();
-     //   System.out.println("MENSAJE " + queue1.getQueueName() + " --> " + command);
+        //   Object command = ((ObjectMessage) msg).getObject();
+        //   System.out.println("MENSAJE " + queue1.getQueueName() + " --> " + command);
 
     }
 
