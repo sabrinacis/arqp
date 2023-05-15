@@ -1,6 +1,5 @@
 package ar.com.arqdx.queue.manager.annotation;
 
-import jdk.nashorn.internal.objects.NativeDebug;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;

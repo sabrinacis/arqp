@@ -3,7 +3,6 @@ package ar.com.arqdx.queue.manager.annotation;
 import ar.com.arqdx.queue.manager.listener.MQListner;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 @Component

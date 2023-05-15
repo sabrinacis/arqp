@@ -8,23 +8,32 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
+import java.util.concurrent.CountDownLatch;
 
-//@Service
-public class ArqDXMessageListener  implements MessageListener {//implements IArqDXMessageListener {
+public class ArqDXMessageListener  implements MessageListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArqDXMessageListener.class);
+    private String id;
 
+    private CountDownLatch latch = new CountDownLatch(1);
+
+    public ArqDXMessageListener(String id) {
+        super();
+        this.id = id;
+    }
     @Override
     public void onMessage(Message message) {
         try {
             Object command = ((ObjectMessage) message).getObject();
 
-            LOGGER.info("onMessage(" + command.toString()+ ")");
+            LOGGER.info("--> onMessage(" + command.toString()+ ")");
 
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
     }
 
-
+    public CountDownLatch getLatch() {
+        return latch;
+    }
 }

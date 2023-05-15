@@ -1,7 +1,6 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
-import ar.com.arqdx.queue.manager.annotation.DxJmsListener;
 import ar.com.arqdx.queue.manager.annotation.DxJmsListener2;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
@@ -35,10 +34,11 @@ import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 import javax.annotation.PostConstruct;
 import javax.jms.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 
 @Configuration
@@ -100,7 +100,7 @@ public class IbmConfiguration {
 
                             Destination producerDestination = session.createQueue(q1.getName());
 
-                            ArqDXMessageListener arqDXMessageListener = new ArqDXMessageListener();
+                            ArqDXMessageListener arqDXMessageListener = new ArqDXMessageListener(Integer.toString(i));
                             DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(), arqDXMessageListener, factory, session);
 
 
@@ -168,21 +168,16 @@ public class IbmConfiguration {
                             Map<String, IQueueIBMMQ> queues = bean1.getQueues();
                             IQueueIBMMQ q1 = queues.get(annotationMessage);
                             Object listener = q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
+                            ArqDXMessageListener status1MessageListener =
+                                    (ArqDXMessageListener) q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
+                            status1MessageListener.getLatch().await(10000,
+                                    TimeUnit.MILLISECONDS);
 
-
-                            Object result = method.invoke(b1,"parametros");
-
+                            // entonces ejecutamos el método por reflection
+                            Object result = method.invoke(b1,getMsg());
 
                             System.out.println("<< onMessage VALUE:: " + annotationMessage + " >>");
                         }
-
-
-                        // entonces ejecutamos el método por reflection
-                        //    String returnedMessage = (String) method.invoke(objetoDeClassConInfoDeMiClase.newInstance());
-                        //   returnedMessage += "\n";
-                        // y el retorno, se lo devolvemos al socket cliente!
-                        //    System.out.println("<<*>>" + returnedMessage);
-
                     }
                 }
             }
@@ -192,7 +187,19 @@ public class IbmConfiguration {
         }
     }
 
-
+    /**
+     * El DefaultMessageListenerContainer es el único contenedor listener que no impone la gestión de hilos al proveedor JMS
+     * (ya que no utiliza/bloquea los hilos del proveedor JMS).
+     * El DMLC también es capaz de recuperarse de fallos del proveedor JMS, como la pérdida de conexión.
+     * Y es la única variante que soporta gestores de transacciones externos, en particular para transacciones XA.
+     *
+     * @param destinationName
+     * @param listener
+     * @param connectionFactory
+     * @param session
+     * @return
+     * @throws JMSException
+     */
     public static DefaultMessageListenerContainer registerMessageListener(String destinationName,
                                                                           MessageListener listener, ConnectionFactory connectionFactory, Session session) throws JMSException {
         LOGGER.info("registerMessageListener(" + destinationName + ", " + listener + ")");
@@ -272,5 +279,256 @@ public class IbmConfiguration {
         return v1.split("\\.")[i].replaceAll("[^\\w+]", "").replaceAll("[sS]", "");
     }
 
+
+    private Object getMsg() {
+
+        Message msg = new Message() {
+            @Override
+            public String getJMSMessageID() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public void setJMSMessageID(String id) throws JMSException {
+
+            }
+
+            @Override
+            public long getJMSTimestamp() throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public void setJMSTimestamp(long timestamp) throws JMSException {
+
+            }
+
+            @Override
+            public byte[] getJMSCorrelationIDAsBytes() throws JMSException {
+                return new byte[0];
+            }
+
+            @Override
+            public void setJMSCorrelationIDAsBytes(byte[] correlationID) throws JMSException {
+
+            }
+
+            @Override
+            public void setJMSCorrelationID(String correlationID) throws JMSException {
+
+            }
+
+            @Override
+            public String getJMSCorrelationID() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public Destination getJMSReplyTo() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public void setJMSReplyTo(Destination replyTo) throws JMSException {
+
+            }
+
+            @Override
+            public Destination getJMSDestination() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public void setJMSDestination(Destination destination) throws JMSException {
+
+            }
+
+            @Override
+            public int getJMSDeliveryMode() throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public void setJMSDeliveryMode(int deliveryMode) throws JMSException {
+
+            }
+
+            @Override
+            public boolean getJMSRedelivered() throws JMSException {
+                return false;
+            }
+
+            @Override
+            public void setJMSRedelivered(boolean redelivered) throws JMSException {
+
+            }
+
+            @Override
+            public String getJMSType() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public void setJMSType(String type) throws JMSException {
+
+            }
+
+            @Override
+            public long getJMSExpiration() throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public void setJMSExpiration(long expiration) throws JMSException {
+
+            }
+
+            @Override
+            public long getJMSDeliveryTime() throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+
+            }
+
+            @Override
+            public int getJMSPriority() throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public void setJMSPriority(int priority) throws JMSException {
+
+            }
+
+            @Override
+            public void clearProperties() throws JMSException {
+
+            }
+
+            @Override
+            public boolean propertyExists(String name) throws JMSException {
+                return false;
+            }
+
+            @Override
+            public boolean getBooleanProperty(String name) throws JMSException {
+                return false;
+            }
+
+            @Override
+            public byte getByteProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public short getShortProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public int getIntProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public long getLongProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public float getFloatProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public double getDoubleProperty(String name) throws JMSException {
+                return 0;
+            }
+
+            @Override
+            public String getStringProperty(String name) throws JMSException {
+                return null;
+            }
+
+            @Override
+            public Object getObjectProperty(String name) throws JMSException {
+                return null;
+            }
+
+            @Override
+            public Enumeration getPropertyNames() throws JMSException {
+                return null;
+            }
+
+            @Override
+            public void setBooleanProperty(String name, boolean value) throws JMSException {
+
+            }
+
+            @Override
+            public void setByteProperty(String name, byte value) throws JMSException {
+
+            }
+
+            @Override
+            public void setShortProperty(String name, short value) throws JMSException {
+
+            }
+
+            @Override
+            public void setIntProperty(String name, int value) throws JMSException {
+
+            }
+
+            @Override
+            public void setLongProperty(String name, long value) throws JMSException {
+
+            }
+
+            @Override
+            public void setFloatProperty(String name, float value) throws JMSException {
+
+            }
+
+            @Override
+            public void setDoubleProperty(String name, double value) throws JMSException {
+
+            }
+
+            @Override
+            public void setStringProperty(String name, String value) throws JMSException {
+
+            }
+
+            @Override
+            public void setObjectProperty(String name, Object value) throws JMSException {
+
+            }
+
+            @Override
+            public void acknowledge() throws JMSException {
+
+            }
+
+            @Override
+            public void clearBody() throws JMSException {
+
+            }
+
+            @Override
+            public <T> T getBody(Class<T> c) throws JMSException {
+                return null;
+            }
+
+            @Override
+            public boolean isBodyAssignableTo(Class c) throws JMSException {
+                return false;
+            }
+        };
+        return msg;
+    }
 
 }
