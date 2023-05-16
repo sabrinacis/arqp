@@ -86,10 +86,10 @@ public class MQConfiguration  {
                         int j = 0;
                         for (Queue q1 : broker.getQueue()) {
                             String beanName = getBeanName(i, j).trim();
-                            JmsListenerContainerFactory jmsListenerContainerFactory = jmsListenerContainerFactory(factory, session, q1.getName(), broker.getConcurrency());
+                            JmsListenerContainerFactory jmsListenerContainerFactory = jmsListenerContainerFactory(factory, session, q1.getName(), q1.getConcurrency());
                             beanFactory.registerSingleton(getJmsListenerContainerFactoryBeanName(beanName), jmsListenerContainerFactory);
 
-                            IQueueIBMMQ ibean = getIQueueIBMMQ(q1.getName(), beanName, session, connection, jmsListenerContainerFactory, factory);
+                            IQueueIBMMQ ibean = getIQueueIBMMQ(  q1, beanName, session, connection, jmsListenerContainerFactory, factory);
                             ibean.setListenerName(getJmsListenerContainerFactoryBeanName(beanName));
                             beanFactory.registerSingleton(beanName, ibean);
 
@@ -110,12 +110,12 @@ public class MQConfiguration  {
         };
     }
 
-    private static IQueueIBMMQ getIQueueIBMMQ(String qName,String beanName, Session session, Connection connection, JmsListenerContainerFactory jmsListenerContainerFactory, MQConnectionFactory factory) throws JMSException {
+    private static IQueueIBMMQ getIQueueIBMMQ(Queue q1,String beanName, Session session, Connection connection, JmsListenerContainerFactory jmsListenerContainerFactory, MQConnectionFactory factory) throws JMSException {
         // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
-        IQueueIBMMQ ibean = new QueueIBMMQ(qName.trim());
+        IQueueIBMMQ ibean = new QueueIBMMQ(q1.getName().trim());
         ibean.setSession(session);
         ibean.setConnection(connection);
-        Destination destination = session.createQueue(qName.trim());
+        Destination destination = session.createQueue(q1.getName().trim());
         ibean.setJmsListenerContainerFactory(jmsListenerContainerFactory);
         ibean.setMessageProducer(new MQMessageProducer(session.createProducer(destination)));
         return ibean;

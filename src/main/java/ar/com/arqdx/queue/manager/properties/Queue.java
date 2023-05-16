@@ -9,6 +9,8 @@ public class Queue  {
 
     private String name;
 
+    private int concurrency;
+
     public String getName() {
         return name;
     }
@@ -17,10 +19,19 @@ public class Queue  {
         this.name = name;
     }
 
+    public int getConcurrency() {
+        return concurrency;
+    }
+
+    public void setConcurrency(int concurrency) {
+        this.concurrency = concurrency;
+    }
+
     @Override
     public String toString() {
         return "Queue{" +
                 "name='" + name + '\'' +
+                ", concurrency=" + concurrency +
                 '}';
     }
 }

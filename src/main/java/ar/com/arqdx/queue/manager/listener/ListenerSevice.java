@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.annotation.JmsListenerAnnotationBeanPostProcessor;
 import org.springframework.jms.config.JmsListenerEndpointRegistry;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,15 @@ public class ListenerSevice {
         Map<String, IQueueIBMMQ> queues = bean1.getQueues();
         reflection(bean1);
     }
-
-
+/*
+    @Bean
+    public JmsListenerAnnotationBeanPostProcessor postProcessor() {
+        JmsListenerAnnotationBeanPostProcessor postProcessor = new JmsListenerAnnotationBeanPostProcessor();
+        postProcessor.setContainerFactoryBeanName("testFactory");
+        postProcessor.setEndpointRegistry(jmsListenerEndpointRegistry());
+        return postProcessor;
+    }
+  */
     @JmsListener(destination = "#{@broker0_queue0.getQueueName()}", containerFactory = "#{@broker0_queue0.getListenerName()}")
     public void process(Message msg) {
         log.info("<< ListenerSevice >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> {}", msg);
