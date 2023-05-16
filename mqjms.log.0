@@ -325,3 +325,12 @@ null
 ACTION:
 null
 --------------------------------------------------------------------
+May 16, 2023 3:22:57 PM ART[http-nio-8080-exec-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------
