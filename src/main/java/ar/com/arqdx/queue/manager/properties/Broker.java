@@ -15,6 +15,8 @@ public class Broker {
     private String user;
     private String password;
     private int port;
+
+    private int concurrency;
     private List<Queue> queue;
 
     public String getHost() {
@@ -63,6 +65,14 @@ public class Broker {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getConcurrency() {
+        return concurrency;
+    }
+
+    public void setConcurrency(int concurrency) {
+        this.concurrency = concurrency;
     }
 
     public List<Queue> getQueue() {

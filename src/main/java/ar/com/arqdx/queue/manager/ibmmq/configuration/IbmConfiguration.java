@@ -1,11 +1,11 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
-import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
 import ar.com.arqdx.queue.manager.client.ArqDXMessageListener;
+import ar.com.arqdx.queue.manager.client.ArqDXSessionAwareMessageListener;
 import ar.com.arqdx.queue.manager.consumer.MQMessageConsumer;
-import ar.com.arqdx.queue.manager.listener.MQListner;
+import ar.com.arqdx.queue.manager.listener.MQListener;
 import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
 import ar.com.arqdx.queue.manager.properties.Broker;
 import ar.com.arqdx.queue.manager.properties.BrokerLoader;
@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.BindResult;
@@ -24,9 +25,11 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.annotation.JmsListenerAnnotationBeanPostProcessor;
+import org.springframework.jms.config.*;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
@@ -40,7 +43,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 
-@Configuration
+//@Configuration
 public class IbmConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IbmConfiguration.class);
@@ -51,14 +54,14 @@ public class IbmConfiguration {
 
     private static final String MQ = "mq";
 
-    @Autowired
+  //  @Autowired
     private ApplicationContext applicationContext;
 
-    @Autowired
+ //   @Autowired
     private static Executor taskExecutor;
 
 
-    @Autowired
+  //  @Autowired
     private Broker brokers;
 
 
@@ -96,9 +99,17 @@ public class IbmConfiguration {
 
                             Destination producerDestination = session.createQueue(q1.getName());
 
-                            ArqDXMessageListener arqDXMessageListener = new ArqDXMessageListener(Integer.toString(i));
-                            DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(), arqDXMessageListener, factory, session);
+                            ArqDXSessionAwareMessageListener arqDXMessageListener = new ArqDXSessionAwareMessageListener(Integer.toString(i));
+                            JmsListenerContainerFactory jmsListenerContainerFactory = jmsListenerContainerFactory(factory, session, q1.getName(), broker.getConcurrency());
+                 //           beanFactory.registerSingleton(getJmsListenerContainerFactoryBeanName(getBeanName(i, j)), jmsListenerContainerFactory);
+                            ibean.setJmsListenerContainerFactory(jmsListenerContainerFactory);
 
+                            SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+                            endpoint.setId("myJmsEndpoint");
+                            endpoint.setDestination("anotherQueue");
+
+                            DefaultMessageListenerContainer messageListenerContainer = registerMessageListener(ibean.getQueueName(), (MessageListener) arqDXMessageListener, factory, session);
+                            beanFactory.registerSingleton(getListenerBeanName(getBeanName(i, j)), messageListenerContainer);
 
                             ibean.setMessageProducer(new MQMessageProducer(session.createProducer(producerDestination)));
                             ibean.setMessageConsumer(new MQMessageConsumer(session.createConsumer(producerDestination), messageListenerContainer));
@@ -127,9 +138,29 @@ public class IbmConfiguration {
         };
     }
 
+   // @Bean
+    public JmsListenerEndpointRegistry jmsListenerEndpointRegistry() {
+        return new JmsListenerEndpointRegistry();
+    }
 
+    //@Bean
+    public JmsListenerContainerTestFactory testFactory() {
+        return new JmsListenerContainerTestFactory();
+    }
+
+    //@Bean
+    public JmsListenerAnnotationBeanPostProcessor postProcessor() {
+        JmsListenerAnnotationBeanPostProcessor postProcessor = new JmsListenerAnnotationBeanPostProcessor();
+        postProcessor.setContainerFactoryBeanName("testFactory");
+        postProcessor.setEndpointRegistry(jmsListenerEndpointRegistry());
+        return postProcessor;
+    }
+
+
+/*
     @PostConstruct
     public void factoryList() {
+
 
         System.out.println("PostConstruct-------------> Implementamos la anotacion ");
 
@@ -142,36 +173,42 @@ public class IbmConfiguration {
             //  for (Class<?> qlass : allClasses) {
 
 
-            MQListner objetoDeMiClase = new MQListner();
-            MQListner b1 =applicationContext.getBean(objetoDeMiClase.getClass());
-            Class<? extends MQListner> objetoDeClassConInfoDeMiClase = objetoDeMiClase.getClass();
+            MQListener objetoDeMiClase = new MQListener();
+            MQListener b1 = applicationContext.getBean(objetoDeMiClase.getClass());
+            Class<? extends MQListener> objetoDeClassConInfoDeMiClase = objetoDeMiClase.getClass();
             objetoDeClassConInfoDeMiClase.newInstance();
+
 
             // recorremos todos los métodos de cada clase
             for (Method method : objetoDeClassConInfoDeMiClase.getDeclaredMethods()) {
 
                 // si hace uso de nuestra anotación "@MessageFilter()"
-                if (method.isAnnotationPresent(DxAnnotationJmsListener.class)) {
+                if (method.isAnnotationPresent(JmsListener.class)) {
 
-                    String annotationMessage = method.getAnnotation(DxAnnotationJmsListener.class).destination();
+                    String valueAtributeDestinationOfAnnotation = method.getAnnotation(JmsListener.class).destination();
+
+                    String containerFactory = method.getAnnotation(JmsListener.class).containerFactory();
 
                     // y si ademas, el mensaje recibido del socket, es igual al de la anotación
-                    if (annotationMessage != null) {
-                        System.out.println("<< DESTINATION VALUE:: " + annotationMessage + " >>");
+                    if (valueAtributeDestinationOfAnnotation != null) {
+                        System.out.println("<< PostConstruct Value Atribute Destination of Annotation :: " + valueAtributeDestinationOfAnnotation + " >>");
+
                         if (applicationContext.containsBean("brokerLoader")) {
+
                             BrokerLoader bean1 = (BrokerLoader) applicationContext.getBean("brokerLoader");
                             Map<String, IQueueIBMMQ> queues = bean1.getQueues();
-                            IQueueIBMMQ q1 = queues.get(annotationMessage);
+                            IQueueIBMMQ q1 = queues.get(valueAtributeDestinationOfAnnotation);
+
                             Object listener = q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
-                            ArqDXMessageListener status1MessageListener =
+                            ArqDXMessageListener messageListener =
                                     (ArqDXMessageListener) q1.getMessageConsumer().getMessageListenerContainer().getMessageListener();
-                            status1MessageListener.getLatch().await(10000,
+                            messageListener.getLatch().await(3000,
                                     TimeUnit.MILLISECONDS);
 
                             // entonces ejecutamos el método por reflection
-                            Object result = method.invoke(b1,getMsg());
+                            Object result = method.invoke(b1, getMsg());
 
-                            System.out.println("<< onMessage VALUE:: " + annotationMessage + " >>");
+                            System.out.println("<< Fin PostConstructor >>");
                         }
                     }
                 }
@@ -181,6 +218,7 @@ public class IbmConfiguration {
             throw new RuntimeException(e);
         }
     }
+*/
 
     /**
      * El DefaultMessageListenerContainer es el único contenedor listener que no impone la gestión de hilos al proveedor JMS
@@ -196,7 +234,7 @@ public class IbmConfiguration {
      * @throws JMSException
      */
     public static DefaultMessageListenerContainer registerMessageListener(String destinationName,
-                                                                          MessageListener listener, ConnectionFactory connectionFactory, Session session) throws JMSException {
+                                                                          MessageListener listener, MQConnectionFactory connectionFactory, Session session) throws JMSException {
         LOGGER.info("registerMessageListener(" + destinationName + ", " + listener + ")");
         DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
@@ -211,18 +249,12 @@ public class IbmConfiguration {
         return container;
     }
 
-    public JmsListenerContainerFactory<?> jmsListenerContainerQueue(ConnectionFactory activeMQConnectionFactory) {
-        DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
-        bean.setConnectionFactory(activeMQConnectionFactory);
-        bean.setPubSubDomain(Boolean.FALSE);
-        return bean;
-    }
 
-    public static JmsListenerContainerFactory jmsListenerContainerFactory(MQConnectionFactory mqConnectionfactory, Session session, String qName) throws JMSException {
+    public static JmsListenerContainerFactory jmsListenerContainerFactory(MQConnectionFactory mqConnectionfactory, Session session, String qName, int concurrency) throws JMSException {
         DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
         containerFactory.setConnectionFactory(mqConnectionfactory);
         containerFactory.setSessionTransacted(true);
-        containerFactory.setConcurrency("5");
+        containerFactory.setConcurrency(String.valueOf(concurrency));
         DestinationResolver destinationResolver = new DynamicDestinationResolver();
         destinationResolver.resolveDestinationName(session, qName, false);
         containerFactory.setDestinationResolver(destinationResolver);
@@ -231,14 +263,14 @@ public class IbmConfiguration {
     }
 
 
-    private static MQProperties getMQConnectionProperties(Environment environment) {
+    static MQProperties getMQConnectionProperties(Environment environment) {
         BindResult<MQProperties> result = Binder.get(environment)
                 .bind(MQ, MQProperties.class);
         return result.get();
     }
 
 
-    private static MQConnectionFactory getMQConnectionFactory(Broker broker) throws JMSException {
+    static MQConnectionFactory getMQConnectionFactory(Broker broker) throws JMSException {
         // Genera Connection Factory
         MQConnectionFactory factory = new MQConnectionFactory();
         factory.setHostName(broker.getHost());
@@ -262,6 +294,21 @@ public class IbmConfiguration {
         beanName.append(BROKER).append(i).append(QUEUE).append(j);
         return beanName.toString();
     }
+
+
+    private static String getListenerBeanName(String beanName) {
+        StringBuffer beanName2 = new StringBuffer();
+        beanName2.append(beanName).append(".listener");
+        return beanName2.toString();
+    }
+
+
+    private static String getJmsListenerContainerFactoryBeanName(String beanName) {
+        StringBuffer beanName2 = new StringBuffer();
+        beanName2.append(beanName).append(".jmsListenerContainerFactory");
+        return beanName2.toString();
+    }
+
 
     private static String getKey(String v1) {
         String sbuffer = replace(v1, 1) +

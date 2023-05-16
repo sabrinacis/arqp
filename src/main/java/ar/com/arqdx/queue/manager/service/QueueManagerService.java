@@ -8,7 +8,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@EnableJms
+//@EnableJms
 @Slf4j
 public class QueueManagerService implements IQueueManagerService {
 
