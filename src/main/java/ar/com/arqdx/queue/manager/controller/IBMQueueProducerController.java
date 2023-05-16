@@ -18,11 +18,11 @@ import java.io.IOException;
 public class IBMQueueProducerController {
 
     @Autowired
-    @Qualifier("broker0.queue0")
+    @Qualifier("broker0_queue0")
     private IQueueIBMMQ queue0;
 
     @Autowired
-    @Qualifier("broker0.queue1")
+    @Qualifier("broker0_queue1")
     private IQueueIBMMQ queue1;
 
     @GetMapping("send1/{value}")

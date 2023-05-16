@@ -44,7 +44,7 @@ public class MQConfiguration  {
 
     private static final String BROKER = "broker";
 
-    private static final String QUEUE = ".queue";
+    private static final String QUEUE = "_queue";
 
     private static final String MQ = "mq";
     @Autowired
@@ -90,6 +90,7 @@ public class MQConfiguration  {
                             beanFactory.registerSingleton(getJmsListenerContainerFactoryBeanName(beanName), jmsListenerContainerFactory);
 
                             IQueueIBMMQ ibean = getIQueueIBMMQ(q1.getName(), beanName, session, connection, jmsListenerContainerFactory, factory);
+                            ibean.setListenerName(getJmsListenerContainerFactoryBeanName(beanName));
                             beanFactory.registerSingleton(beanName, ibean);
 
                             brokerLoader.getQueues().put(beanName, ibean);

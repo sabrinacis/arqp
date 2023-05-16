@@ -28,7 +28,7 @@ public class AppConfig implements JmsListenerConfigurer {
         Map<String, IQueueIBMMQ> queues = bean1.getQueues();
 
         int i = 0;
-        IQueueIBMMQ q1 = queues.get("broker0.queue0");
+        IQueueIBMMQ q1 = queues.get("broker0_queue0");
 
         SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
         endpoint.setId("myJmsEndpoint-" + i++);

@@ -18,6 +18,8 @@ public class QueueIBMMQ implements IQueueIBMMQ {
 
     private String queueName;
 
+    private String listenerName;
+
     private Connection connection;
 
     private JmsListenerContainerFactory jmsListenerContainerFactory;
@@ -55,6 +57,14 @@ public class QueueIBMMQ implements IQueueIBMMQ {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+    @Override
+    public String getListenerName() {
+        return listenerName;
+    }
+    @Override
+    public void setListenerName(String listenerName) {
+        this.listenerName = listenerName;
     }
 
     @Override

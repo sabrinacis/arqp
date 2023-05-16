@@ -13,6 +13,10 @@ public interface IQueueIBMMQ {
 
     String getQueueName();
 
+    String getListenerName();
+
+    void setListenerName(String listenerName);
+
     void sendMessage(IArqDxMessage message) throws JMSException;
 
     void consume() throws JMSException;

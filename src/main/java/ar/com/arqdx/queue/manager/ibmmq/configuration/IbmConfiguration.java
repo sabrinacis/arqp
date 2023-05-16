@@ -2,10 +2,8 @@ package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
-import ar.com.arqdx.queue.manager.client.ArqDXMessageListener;
 import ar.com.arqdx.queue.manager.client.ArqDXSessionAwareMessageListener;
 import ar.com.arqdx.queue.manager.consumer.MQMessageConsumer;
-import ar.com.arqdx.queue.manager.listener.MQListener;
 import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
 import ar.com.arqdx.queue.manager.properties.Broker;
 import ar.com.arqdx.queue.manager.properties.BrokerLoader;
@@ -16,31 +14,22 @@ import com.ibm.msg.client.wmq.WMQConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.annotation.JmsListenerAnnotationBeanPostProcessor;
 import org.springframework.jms.config.*;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
-import javax.annotation.PostConstruct;
 import javax.jms.*;
-import java.lang.reflect.Method;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 
 //@Configuration
