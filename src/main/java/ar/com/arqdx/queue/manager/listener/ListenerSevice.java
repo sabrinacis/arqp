@@ -1,6 +1,7 @@
 package ar.com.arqdx.queue.manager.listener;
 
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.annotation.JmsListener;
@@ -10,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.jms.Message;
 
 @Service
+@Slf4j
 public class ListenerSevice {
 
     @Autowired
@@ -22,15 +24,14 @@ public class ListenerSevice {
 
     @PostConstruct
     public void afteConstruct() {
-        System.out.println("************* initialized MQ Listener successfully, will read from =" + queue0.getQueueName());
+        log.info("<< ListenerSevice 2 >> ************* initialized MQ Listener successfully, will read from = {}",queue0.getQueueName());
 
     }
 
-    @JmsListener(destination = "DEV.QUEUE.VALUES")
+    @JmsListener(destination = "DEV.QUEUE.VALUES", containerFactory = "")
  //   @JmsListener(containerFactory = "broker0.queue0.jmsListenerContainerFactory", destination="DEV.QUEUE.VALUES")
     public void process(Message msg) {
-
-        System.out.println("<< ListenerSevice >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> " + msg);
+        log.info("<< ListenerSevice >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> {}",msg);
 
     }
 
@@ -38,7 +39,7 @@ public class ListenerSevice {
     //   @JmsListener(containerFactory = "broker0.queue0.jmsListenerContainerFactory", destination="DEV.QUEUE.VALUES")
     public void process2(Message msg) {
 
-        System.out.println("<< ListenerSevice 2 >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> " + msg);
+        log.info("<< ListenerSevice 2 >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> {}",msg);
 
     }
 }
