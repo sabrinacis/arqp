@@ -92,7 +92,7 @@ public class MQConfiguration  {
                             IQueueIBMMQ ibean = getIQueueIBMMQ(q1.getName(), beanName, session, connection, jmsListenerContainerFactory, factory);
                             beanFactory.registerSingleton(beanName, ibean);
 
-                            brokerLoader.getQueues().put(ibean.getQueueName(), ibean);
+                            brokerLoader.getQueues().put(beanName, ibean);
 
                             j = j + 1;
                         }
