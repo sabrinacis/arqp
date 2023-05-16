@@ -289,3 +289,12 @@ null
 ACTION:
 null
 --------------------------------------------------------------------
+May 16, 2023 2:37:06 PM ART[org.springframework.jms.JmsListenerEndpointContainer#3-1] com.ibm.msg.client.commonservices.util.SerializationValidator
+No WhiteList functionality enabled - either the properties were not set, or the security permissions prevent them being read
+
+EXPLANATION:
+null
+
+ACTION:
+null
+--------------------------------------------------------------------

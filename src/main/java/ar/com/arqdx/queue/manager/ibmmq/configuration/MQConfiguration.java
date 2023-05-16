@@ -51,11 +51,6 @@ public class MQConfiguration  {
     private static ApplicationContext applicationContext;
 
 
-    @Bean
-    public ListenerSevice myService() {
-        return new ListenerSevice();
-    }
-
     private DestinationResolver destinationResolver(AbstractJmsListenerContainerFactory<AbstractMessageListenerContainer> containerFactory, Session session, String qName) throws JMSException {
         DestinationResolver destinationResolver = new DynamicDestinationResolver();
         destinationResolver.resolveDestinationName(session, qName, false);
