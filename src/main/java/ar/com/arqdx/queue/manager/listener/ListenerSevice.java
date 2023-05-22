@@ -1,10 +1,7 @@
 package ar.com.arqdx.queue.manager.listener;
 
-import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
+import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Message;
@@ -13,25 +10,16 @@ import javax.jms.Message;
 @Slf4j
 public class ListenerSevice {
 
-    @Autowired
-    @Qualifier("broker0_queue0")
-    private IQueueIBMMQ broker0_queue0;
-
-    @Autowired
-    @Qualifier("broker0_queue1")
-    private IQueueIBMMQ broker0_queue1;
-
-
-    @JmsListener(destination = "#{@broker0_queue0.getQueueName()}", containerFactory = "#{@broker0_queue0.getListenerName()}")
+    @DxAnnotationJmsListener(destination = "DEPOSITOS")
     public void process(Message msg) {
-        log.info("<< ListenerSevice >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> {}", msg);
+        log.info(" LISTENER DEPOSITOS -->> MENSAJE RECIBIDO: {}", msg);
 
     }
 
-    @JmsListener(destination = "#{@broker0_queue1.getQueueName()}", containerFactory = "#{@broker0_queue1.getListenerName()}")
+    @DxAnnotationJmsListener(destination = "ECHEQS")
     public void process2(Message msg) {
 
-        log.info("<< ListenerSevice 2 >> @DxAnnotationJmsListener -->> MENSAJE RECIBIDO --> {}", msg);
+        log.info(" LISTENER ECHEQS -->> MENSAJE RECIBIDO: {}", msg);
 
     }
 

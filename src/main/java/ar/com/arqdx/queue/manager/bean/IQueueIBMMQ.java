@@ -8,6 +8,7 @@ import org.springframework.jms.config.JmsListenerContainerFactory;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.lang.reflect.Method;
 
 public interface IQueueIBMMQ {
 
@@ -40,4 +41,20 @@ public interface IQueueIBMMQ {
     JmsListenerContainerFactory getJmsListenerContainerFactory();
 
     void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory);
+
+    int getMinconcurrency();
+
+    void setMinconcurrency(int minconcurrency);
+
+    int getMaxconcurrency();
+
+    void setMaxconcurrency(int maxconcurrency);
+
+    Method getMethodListener();
+
+    void setMethodListener(Method methodListener);
+
+    Object getBeanListenerClassInfo() ;
+
+     void setBeanListenerClassInfo(Object beanListenerClassInfo);
 }

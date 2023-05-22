@@ -11,6 +11,7 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import java.lang.reflect.Method;
 
 @Component
 @Slf4j
@@ -22,12 +23,18 @@ public class QueueIBMMQ implements IQueueIBMMQ {
 
     private Connection connection;
 
+    private int minconcurrency;
+
+    private int maxconcurrency;
+
     private JmsListenerContainerFactory jmsListenerContainerFactory;
 
     private Session session;
 
     private IMQMessageProducer messageProducer;
     private IMQMessageConsumer messageConsumer;
+    private Object beanListenerClassInfo;
+    private Method methodListener;
 
     public QueueIBMMQ() {
     }
@@ -58,10 +65,12 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     public void setQueueName(String queueName) {
         this.queueName = queueName;
     }
+
     @Override
     public String getListenerName() {
         return listenerName;
     }
+
     @Override
     public void setListenerName(String listenerName) {
         this.listenerName = listenerName;
@@ -115,6 +124,47 @@ public class QueueIBMMQ implements IQueueIBMMQ {
     @Override
     public void setJmsListenerContainerFactory(JmsListenerContainerFactory jmsListenerContainerFactory) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
+    }
+
+    @Override
+    public int getMinconcurrency() {
+        return minconcurrency;
+    }
+
+    @Override
+    public void setMinconcurrency(int minconcurrency) {
+        this.minconcurrency = minconcurrency;
+    }
+
+    @Override
+    public int getMaxconcurrency() {
+        return maxconcurrency;
+    }
+
+    @Override
+    public void setMaxconcurrency(int maxconcurrency) {
+        this.maxconcurrency = maxconcurrency;
+    }
+
+    @Override
+    public Object getBeanListenerClassInfo() {
+        return beanListenerClassInfo;
+    }
+
+    @Override
+    public void setBeanListenerClassInfo(Object beanListenerClassInfo) {
+        this.beanListenerClassInfo = beanListenerClassInfo;
+    }
+
+
+    @Override
+    public Method getMethodListener() {
+        return methodListener;
+    }
+
+    @Override
+    public void setMethodListener(Method methodListener) {
+        this.methodListener = methodListener;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package ar.com.arqdx.queue.manager.ibmmq.configuration;
 
+import ar.com.arqdx.queue.manager.annotation.DxAnnotationJmsListener;
+import ar.com.arqdx.queue.manager.bean.ApplicationContextProvider;
 import ar.com.arqdx.queue.manager.bean.IQueueIBMMQ;
 import ar.com.arqdx.queue.manager.bean.QueueIBMMQ;
 import ar.com.arqdx.queue.manager.producer.MQMessageProducer;
@@ -9,30 +11,40 @@ import ar.com.arqdx.queue.manager.properties.MQProperties;
 import ar.com.arqdx.queue.manager.properties.Queue;
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.jms.config.AbstractJmsListenerContainerFactory;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
-import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
-import javax.jms.*;
+import javax.annotation.PostConstruct;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Session;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
 
 @Configuration
-public class MQConfiguration  {
+@Slf4j
+public class MQConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MQConfiguration.class);
 
@@ -41,16 +53,10 @@ public class MQConfiguration  {
     private static final String QUEUE = "_queue";
 
     private static final String MQ = "mq";
+
+
     @Autowired
-    private static ApplicationContext applicationContext;
-
-
-    private DestinationResolver destinationResolver(AbstractJmsListenerContainerFactory<AbstractMessageListenerContainer> containerFactory, Session session, String qName) throws JMSException {
-        DestinationResolver destinationResolver = new DynamicDestinationResolver();
-        destinationResolver.resolveDestinationName(session, qName, false);
-        containerFactory.setDestinationResolver(destinationResolver);
-        return destinationResolver;
-    }
+    private static BrokerLoader brokerLoader;
 
     @Bean
     public static BeanFactoryPostProcessor beanFactoryPostProcessor(
@@ -62,8 +68,7 @@ public class MQConfiguration  {
                     ConfigurableListableBeanFactory beanFactory) throws BeansException {
                 try {
 
-
-                    BrokerLoader brokerLoader = new BrokerLoader();
+                    brokerLoader = new BrokerLoader();
                     beanFactory.registerSingleton("brokerLoader", brokerLoader);
 
                     MQProperties properties = getMQConnectionProperties(environment);
@@ -80,10 +85,10 @@ public class MQConfiguration  {
                         int j = 0;
                         for (Queue q1 : broker.getQueue()) {
                             String beanName = getBeanName(i, j).trim();
-                            JmsListenerContainerFactory jmsListenerContainerFactory = jmsListenerContainerFactory(factory, session, q1.getName(), q1.getConcurrency());
+                            JmsListenerContainerFactory jmsListenerContainerFactory = jmsListenerContainerFactory(factory, session, q1.getName(), q1.getMaxconcurrency());
                             beanFactory.registerSingleton(getJmsListenerContainerFactoryBeanName(beanName), jmsListenerContainerFactory);
 
-                            IQueueIBMMQ ibean = getIQueueIBMMQ(  q1, beanName, session, connection, jmsListenerContainerFactory, factory);
+                            IQueueIBMMQ ibean = getIQueueIBMMQ(q1, beanName, session, connection, jmsListenerContainerFactory, factory);
                             ibean.setListenerName(getJmsListenerContainerFactoryBeanName(beanName));
                             beanFactory.registerSingleton(beanName, ibean);
 
@@ -104,11 +109,56 @@ public class MQConfiguration  {
         };
     }
 
-    private static IQueueIBMMQ getIQueueIBMMQ(Queue q1,String beanName, Session session, Connection connection, JmsListenerContainerFactory jmsListenerContainerFactory, MQConnectionFactory factory) throws JMSException {
+
+    @PostConstruct
+    private void setListenerMethod() {
+        log.info("<< getIqueueIBMMQList >> ************* ");
+
+        Map<String, IQueueIBMMQ> queues = brokerLoader.getQueues();
+        queues.forEach((k, v) -> {
+            log.info("Key: " + k + ": Value: " + v);
+            try {
+                reflection(v);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    private ApplicationContext getApplicationContext() {
+        return ApplicationContextProvider.getApplicationContext();
+    }
+
+    private void reflection(IQueueIBMMQ iq1) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+        ClassPathScanningCandidateComponentProvider provider =
+                new ClassPathScanningCandidateComponentProvider(true);
+        provider.addIncludeFilter(new AnnotationTypeFilter(DxAnnotationJmsListener.class));
+
+        Set<BeanDefinition> beanDefs = provider.findCandidateComponents("ar");
+        for (BeanDefinition bd : beanDefs) {
+            Class<?> b1 = Class.forName(bd.getBeanClassName());
+            for (Method method : b1.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(DxAnnotationJmsListener.class)) {
+                    String valueAtributeDestinationOfAnnotation = method.getAnnotation(DxAnnotationJmsListener.class).destination();
+                    if (Boolean.TRUE.equals(!valueAtributeDestinationOfAnnotation.equals("")
+                            && valueAtributeDestinationOfAnnotation.trim().equals(iq1.getQueueName().trim()))) {
+                        iq1.setMethodListener(method);
+                        iq1.setBeanListenerClassInfo(Class.forName(b1.getName()).newInstance());
+                    }
+                }
+            }
+        }
+    }
+
+    private static IQueueIBMMQ getIQueueIBMMQ(Queue q1, String beanName, Session session, Connection connection, JmsListenerContainerFactory jmsListenerContainerFactory, MQConnectionFactory factory) throws JMSException {
         // Genera los Beans que se usaran en los Productores/Consumidores, bean name = 'broker0queue0', 'broker0queue1', etc
         IQueueIBMMQ ibean = new QueueIBMMQ(q1.getName().trim());
         ibean.setSession(session);
         ibean.setConnection(connection);
+        ibean.setMinconcurrency(q1.getMinconcurrency());
+        ibean.setMaxconcurrency(q1.getMaxconcurrency());
         Destination destination = session.createQueue(q1.getName().trim());
         ibean.setJmsListenerContainerFactory(jmsListenerContainerFactory);
         ibean.setMessageProducer(new MQMessageProducer(session.createProducer(destination)));
